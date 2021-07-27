@@ -35,13 +35,14 @@ def build_order(cityID,sid,bt):
 
 
 def autobuild(cityID,bt=0,strategy='lowest',maxlvl=20,randmode=1):
+	buildTargets=[]
 	if randmode:
 		bt=mx.shuffle(bt)
 
 	if strategy=='lowest':
 		if type(bt) is int:
 			bt=[bt]
-		buildTargets=[]
+		
 		for btype in bt:
 			filteredList=filter(lambda x:x['bt']==btype, get_buildings(cityID))
 			minBuilding=sorted(filteredList, key=lambda x:x['level'])[0]
@@ -63,13 +64,12 @@ def autobuild(cityID,bt=0,strategy='lowest',maxlvl=20,randmode=1):
 if __name__ == '__main__':
 
 	while True:
-		autobuild(Defaults.CITY1,bt=[3],maxlvl=10)
-		autobuild(Defaults.CITY1,bt=[0],maxlvl=20,randmode=1)
-		# autobuild(Defaults.CITY1,bt=[11,12],maxlvl=8,randmode=1)
+		# autobuild(Defaults.CITY1['cid'],bt=[11],maxlvl=10)
+		autobuild(Defaults.CITY2['cid'],bt=[3],maxlvl=10)
 
-		# autobuild(Defaults.CITY1,bt=[2],maxlvl=10)
-		print("sleeping 30s")
-		time.sleep(30)
+		# print(LoginManager.get_page_soup('http://s1.mechhero.com/City.aspx'))
+		print("sleeping 60s")
+		time.sleep(60)
 		# autobuild(Defaults.CITY1,bt=[11,12,13],maxlvl=6)
 
 
