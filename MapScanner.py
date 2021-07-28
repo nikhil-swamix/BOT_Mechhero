@@ -22,7 +22,9 @@ class Tile:
 			[print(k,':',v) for k,v in vars(self).items()]
 
 	def get_tile_coords(self,mid):
-		return {"x":(mid%512 -256), "y":(256 -int(mid/512)) }
+		x=(mid%512 -256)
+		y=(256 -int(mid/512))
+		return x,y
 
 	def get_raw_page(self,mid):
 		return LoginManager.get_page_soup(f'http://s1.mechhero.com/Navigation.aspx?mid={mid}')
@@ -32,18 +34,11 @@ class Tile:
 
 	def analyze_tile(self,):
 		data={}
-		if self.isDebris==True:
-			data=parse_debris(self.rawPage)
-			return data
+		if self.isDebris==True: return parse_debris(self.rawPage)
+		if self.isNPC==True: return parse_npc(self.rawPage)
+		if self.isEmptyGround==True: pass
 
-		if self.isNPC==True:
-			data=parse_npc(self.rawPage)
-			return data
-
-		if self.isEmptyGround==True:
-			pass
-
-#-------------------------------
+#------------------------------->PARSERS
 def parse_debris(rawPage):
 	resources=[int(x.text) for x in rawPage.select('.scroll_y > span:nth-child(1) span')]
 	data={
@@ -68,16 +63,27 @@ def parse_npc(rawPage):
 	return data
 
 
-#-------------------------------
+#------------------------------->TILE ROOT FINDER
 def get_root(cid:'mid'):
 	xcord=cid%8 
 	ycord=(int(cid/512)%8)*512
 	cord=(cid-xcord-ycord)
 	return (cord)
 
+#------------------------------->TILE GENERATOR
 def gen_tiles(mid,n=8):
 	tiles=[x for y in range(mid,mid+512*n,512) for x in range(y,y+n)  ]
 	return tiles
+
+#-------------------------------
+def prettyprint_map_api_tiles(mid,n=8):
+	# mid=Defaults.CITY1['sector_root']
+	print(mid)
+	bp=8
+	for x in get_map_api_data(mid):
+		print(x,end='\t|')
+		bp+=1
+		if bp % 8 ==0: print()
 
 def get_map_api_data(mid,n=8):
 	apiurl=f'http://s1.mechhero.com/data.map?rq=311_1_{mid}_{n}'
@@ -123,8 +129,8 @@ if __name__ == '__main__':
 	# CitySector(Defaults.CITY1['cid'])
 	mytile=Tile(124704)
 
-	mid=123168
-	ntiles=get_npc_tiles(mid)
-	print(ntiles)
-	# for x in htiles: 
-	# 	print(x,Tile(x).isDebris)
+	# mid=123168
+	# ntiles=get_npc_tiles(mid)
+	# print(ntiles)
+
+	prettyprint_map_api_tiles(Defaults.CITY1['sector_root'])

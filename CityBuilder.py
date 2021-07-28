@@ -8,20 +8,33 @@ from pprint import pprint
 lastCookie=LoginManager.lastCookie
 
 def get_buildings(cityID):
+	'''
+		arg:cityID> city id which the player wants get its building list. 
+		return> 	a [dict,...] where dict contains crucial info of each building in city
+	'''
 	cityurl=f'http://s1.mechhero.com/City.aspx?cid={cityID}'
 	page=LoginManager.get_page_soup(cityurl)
 	buildings=[]
 	for x in page.select('area'):
 		title=x.attrs.get('title','')
+		if 'building now' in title or 'queued' in title:
+			print(f'LOG: @{cityID} skipping {title}')
+			continue
 		sid=int(re.search(r'(?<=sid=)\d*',x['href']).group())
 		bt=re.findall(r'(?<=bt=)\d*',x['href'])
 		bt=int(bt[0]) if bt else None
 		level=int(re.search(r'(?<=\()\d*(?=\))',title).group()) if title else -1
-		d={'sid':sid,'bt':bt,'title':title,'level':level}
-		buildings.append(d)
+		buildings.append({'sid':sid,'bt':bt,'title':title,'level':level})
 	return buildings
 
 def build_order(cityID,sid,bt):
+	"""
+		arg:cityID> city id which the player wants get its building list. 
+		arg:sid>	specific id of tile which needs to be upgraded.
+		arg:bt>		type of building present on the sid
+		var:postpayload> this object was seperately captured via browser requests
+		return> None, since its a post function. and its output is junk
+	"""
 	postpayload={
 	"__VIEWSTATE": "oyzb4H5sU2dLgDogNyBqS3zmA5AUeA1sze5fHIr5Oz5a5zTUBsSBtQ6Hf4jsPaeWuiEHUCWkRlo3RKm10YEV/fd/gf/syomjwyeFz3aRQz4=",
 	"rcid": cityID,
@@ -35,6 +48,7 @@ def build_order(cityID,sid,bt):
 
 
 def autobuild(cityID,bt=0,strategy='lowest',maxlvl=20,randmode=1):
+	
 	buildTargets=[]
 	if randmode:
 		bt=mx.shuffle(bt)
