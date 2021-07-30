@@ -17,7 +17,7 @@ def get_enroutes(CITY):
 	return enroutes
 
 #--------------------|
-def smart_send(CITY,TILE,cellRatio=3):
+def smart_send(CITY,TILE,cellRatio=3.5):
 	posturl=f'http://s1.mechhero.com/UnitListSend.aspx?all=1&mid={TILE.mid}&cid={CITY["cid"]}&at=12'
 	postdata={
 		"__VIEWSTATE": "d7RKjPEUzZ+XmJGCnyQI02PZpb5CNo7VCQnu+D86b0Kpn4zA9Im0+nysgemkIbg6Uzb+lNLgzIoxlzmeY5SzGqE/SoVlQrzm2WUJ0iTBGDY=",

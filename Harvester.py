@@ -58,9 +58,9 @@ def send_harvestor(CITY,TILE):
 		havailable=0
 
 	resp=LoginManager.post(apiurl,postdata)
-	print(f'HARVEST:SEND: hcost:{TILE.data["hcost"]}->{TILE.coords} |havailable:{havailable}|hslots:{hslots}')
-	havailable-=min(TILE.data['hcost'],havailable)
 	hslots-=1
+	havailable-=min(TILE.data['hcost'],havailable)
+	print(f'HARVEST:SEND: hcost:{TILE.data["hcost"]}->{TILE.coords} |havailable:{havailable}|hslots:{hslots}')
 	return 'success'
 
 

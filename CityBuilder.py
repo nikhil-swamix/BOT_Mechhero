@@ -32,14 +32,14 @@ def get_buildings(cityID):
 	buildings=[]
 	for x in page.select('area'):
 		title=x.attrs.get('title','')
-		if 'building now' in title or 'queued' in title:
-			print(f'LOG: @{cityID} skipping {title}')
-			continue
+
 		sid=int(re.search(r'(?<=sid=)\d*',x['href']).group())
 		bt=re.findall(r'(?<=bt=)\d*',x['href'])
 		bt=int(bt[0]) if bt else None
 		level=int(re.search(r'(?<=\()\d*(?=\))',title).group()) if title else -1
-		buildings.append({'sid':sid,'bt':bt,'title':title,'level':level})
+		bdict={'sid':sid,'bt':bt,'title':title,'level':level}
+		# print(bdict)
+		buildings.append(bdict)
 	return buildings
 
 #------------------------------
@@ -64,33 +64,61 @@ def build(cityID,sid,bt):
 
 
 #------------------------------
-def autobuild(cityID,bt=0,strategy='lowest',maxlvl=20,randmode=1):
+
+def autobuild(cityID,btype=0,maxlvl=20,onlyidle=0,randmode=1):
 	'''
-		arg:cityID> 
+		desc:
+			select lowest building from each type and then place build order on them
+		example:
+			for example input 'bt' is a list [1,2,3] then crystal,gas,cells are polulated 
+			and lowest building is placed order , total of 3 orders are placed in this case
+		arg:cityID: 
+			standard id argument of city
+		arg:btype:
+			building type which player wants to build, see the game's main docs for more info.
+		kwarg:randmode:
+			randomize build order? and remove any priorities,
+		kwarg:maxlvl:
+			max level the building can be placed order, target buildings higher than this level are ignored 
 	'''
 	LoginManager.save_city()
 	buildTargets=[]
-	if randmode:
-		bt=mx.shuffle(bt)
+	buildings=get_buildings(cityID)
 
-	if strategy=='lowest':
-		if type(bt) is int:
-			bt=[bt]
-		for btype in bt:
-			filteredList=filter(lambda x:x['bt']==btype, get_buildings(cityID))
+	if randmode:
+		btype=mx.shuffle(btype)
+
+	if type(btype) is not list: 
+		btype=list(btype)
+
+	if onlyidle: 
+		b=[]
+		for x in buildings:
+			if 'building now' in x['title'] or 'queued' in x['title']:
+				print('skipping',x)
+				continue
+			else:
+				b.append(x)
+		buildings=b
+
+	# print(buildings)
+	for b in btype:
+		try:
+			filteredList=list(filter(lambda x:x['bt']==b, buildings))
+			# print('fl',filteredList)
 			minBuilding=sorted(filteredList, key=lambda x:x['level'])[0]
 			if minBuilding['level']>=maxlvl:
 				print(f'skipping {minBuilding} , reason=maxlevel reached')
 				continue
-			else:
+			else: 
 				buildTargets.append(minBuilding)
-		for t in buildTargets:
-			build(cityID,t['sid'],t['bt'])
 
+		except Exception as e:
+			pass
 
-	LoginManager.load_city()
-
-
+	# print('btargets',buildTargets)
+	[build(cityID,t['sid'],t['bt']) for t in buildTargets]
+	return LoginManager.load_city()
 
 #_________________________________________________
 from Defaults import *
@@ -99,21 +127,17 @@ def city1plan():
 	'matured'
 
 def city2plan():
-	autobuild(CITY2['cid'],bt=[3],maxlvl=10)
+	autobuild(CITY2['cid'],btype=[45],maxlvl=20)
 
 def city3plan():
-	autobuild(CITY3['cid'],bt=[3],maxlvl=10)
-#_________________________________________________
-#                  _                       _      
-#                 (_)                     | |     
-#  _ __ ___   __ _ _ _ __     ___ ___   __| | ___ 
-# | '_ ` _ \ / _` | | '_ \   / __/ _ \ / _` |/ _ \
-# | | | | | | (_| | | | | | | (_| (_) | (_| |  __/
-# |_| |_| |_|\__,_|_|_| |_|  \___\___/ \__,_|\___|
+	autobuild(CITY3['cid'],btype=[15,41,30,32,42],maxlvl=10)
+	# autobuild(CITY3['cid'],btype=[*range(100)],maxlvl=10)
+	# autobuild(CITY3['cid'],btype=[3],maxlvl=10)
 #_________________________________________________
 
                                                                                          
 if __name__ == '__main__':
-
-	print(get_resources(Defaults.CITY3))
+	# city2plan()
+	city3plan()
+	# print(get_resources(Defaults.CITY3))
 
