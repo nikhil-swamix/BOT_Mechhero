@@ -14,8 +14,16 @@ def get_unit_data(UID):
 	isFree=True if 'Standing-by' in status else False
 	dmgPerSecond=sum(int(x.text) for x in data.select('.damage b'))
 	cellUsage=int(data.select_one('.res').text)
+	serviceRequired=bool(data.select_one('.red') )
 	# print('uid:',UID,end='|')
-	return {'uid':UID,'name':name,'isFree':isFree,'dps':dmgPerSecond,'cells':cellUsage}
+	return {
+		'uid':UID,
+		'name':name,
+		'isFree':isFree,
+		'cells':cellUsage,
+		'dps':dmgPerSecond,
+		'serviceRequired':serviceRequired
+		}
 
 def get_units_list(CITY):
 	geturl=f'http://s1.mechhero.com/UnitList.aspx?cid={CITY["cid"]}'
@@ -47,12 +55,12 @@ def rearm_repair_all_units(CITY,debug=0):
 
 
 if __name__ == '__main__':
-	'''GET ALL UNITS'''
-	# ulist=get_units_list(Defaults.CITY1)
+	'''GET ALL UNITS WITH DATAOBJ'''
+	# udatalist=[get_unit_data(x) for x in get_units_list(Defaults.CITY2)]
 
 	'''GET ALL DATA'''
-	udata=get_unit_data(80725)
-	print(udata)
+	# udata=get_unit_data(80725)
+	# print(udata)
 
 	'''AUTO MAINTAIN ALL UNITS'''
-	# rearm_repair_all_units(Defaults.CITY1)
+	rearm_repair_all_units(Defaults.CITY1)

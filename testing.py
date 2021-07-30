@@ -43,7 +43,7 @@ def proxy_benchmark(dbfile,url,proto1='https',proto2='socks4'):
 		arg:url> is a standard http/s url to benchmark the proxies
 	'''
 	mx.maxThreads=256
-	data=list(mx.setload(dbfile))
+	data=list(mx.setload(dbfile))[:]
 	print('BENCHMARKING ',len(data),'proxies')
 	poolresult=[]
 	proxyBenchList=[]
@@ -59,17 +59,17 @@ def proxy_benchmark(dbfile,url,proto1='https',proto2='socks4'):
 	return proxyBenchList
 
 
-dbfile='.\\database\\socks4proxies.set';	proto1='http';	proto2='socks4'
-dbfile='.\\database\\socks5proxies.set';	proto1='http';	proto2='socks5'
 dbfile='.\\database\\httpproxies.set';		proto1='https';	proto2='https'
+dbfile='.\\database\\socks5proxies.set';	proto1='http';	proto2='socks5'
+dbfile='.\\database\\socks4proxies.set';	proto1='http';	proto2='socks4'
 
-# result=proxy_benchmark(dbfile,'https://swamix.com/',proto1=proto1,proto2=proto2)
-# mx.jdump(result,dbfile+'.best')
+result=proxy_benchmark(dbfile,'https://www.spicejet.com/',proto1=proto1,proto2=proto2)
+mx.jdump(result,dbfile+'.best')
 
 # TEST POOL
 # poolresult=[mx.apply_async(funkation,'apple','ball') for x in range(200)]
 # [x.result() for x in poolresult]
 
 
-print(proxy_benchmark.__doc__,)
+# print(proxy_benchmark.__doc__,)
 

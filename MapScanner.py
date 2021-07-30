@@ -6,6 +6,7 @@ import time
 
 
 #-------------------------------
+
 class Tile:
 	DEBUG=0
 	def __init__(self,mid):
@@ -15,16 +16,12 @@ class Tile:
 		self.isDebris='debris field' in self.pageText
 		self.isEmptyGround='empty ground' in self.pageText
 		self.isNPC='NPC location' in self.pageText
-		self.coords=self.get_tile_coords(mid)
+		self.coords=get_tile_coords(mid)
 		self.data=self.analyze_tile()
 		
 		if Tile.DEBUG==1: 
 			[print(k,':',v) for k,v in vars(self).items()]
 
-	def get_tile_coords(self,mid):
-		x=(mid%512 -256)
-		y=(256 -int(mid/512))
-		return x,y
 
 	def get_raw_page(self,mid):
 		return LoginManager.get_page_soup(f'http://s1.mechhero.com/Navigation.aspx?mid={mid}')
@@ -37,6 +34,23 @@ class Tile:
 		if self.isDebris==True: return parse_debris(self.rawPage)
 		if self.isNPC==True: return parse_npc(self.rawPage)
 		if self.isEmptyGround==True: pass
+
+#------------------------------->GETTERS
+def get_tile_coords(mid):
+	x=(mid%512 -256)
+	y=(256 -int(mid/512))
+	return x,y
+#------------------------------->TILE ROOT FINDER
+def get_root(mid):
+	xcord=mid%8 
+	ycord=(int(mid/512)%8)*512
+	cord=(mid-xcord-ycord)
+	return (cord)
+
+#------------------------------->TILE GENERATOR
+def gen_tiles(mid,n=8):
+	tiles=[x for y in range(mid,mid+512*n,512) for x in range(y,y+n)  ]
+	return tiles
 
 #------------------------------->PARSERS
 def parse_debris(rawPage):
@@ -63,17 +77,6 @@ def parse_npc(rawPage):
 	return data
 
 
-#------------------------------->TILE ROOT FINDER
-def get_root(cid:'mid'):
-	xcord=cid%8 
-	ycord=(int(cid/512)%8)*512
-	cord=(cid-xcord-ycord)
-	return (cord)
-
-#------------------------------->TILE GENERATOR
-def gen_tiles(mid,n=8):
-	tiles=[x for y in range(mid,mid+512*n,512) for x in range(y,y+n)  ]
-	return tiles
 
 #-------------------------------
 def prettyprint_map_api_tiles(mid,n=8):
