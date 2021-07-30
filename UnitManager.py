@@ -34,13 +34,12 @@ def get_unit_datalist(CITY):
 	# global ThreadPool
 	return [y.get() for y in [POOL.apply_async(get_unit_data,(x,)) for x in get_units_list(CITY)]]
 
-def rearm_repair_all_units(CITY,debug=0):
+def rearm_repair_all_units(CITY,debug=0,sleep=1):
+	print('INFO: START Rearm+Repair to All units in ',CITY['cid'])
 	postdata={
-		"__VIEWSTATE": "IzwrWd9rYlF+vy4xX1zSXXuu/+4K6em0a7LKgZd70R9WxsLYAjNHSYgekv22BZ2tu5Lmh3FwCmrndZIJ4lWiOIUEJfSUQKyZFXFczbeCOEA=",
 		"rcid": CITY['cid'],
-		"__VIEWSTATEGENERATOR": "410BFDDA",
-		"__EVENTTARGET": "ctl00$ctl00$body$content$unitControl",
-		"__EVENTARGUMENT": "rearm_7"
+		"__VIEWSTATE": "IzwrWd9rYlF+vy4xX1zSXXuu/+4K6em0a7LKgZd70R9WxsLYAjNHSYgekv22BZ2tu5Lmh3FwCmrndZIJ4lWiOIUEJfSUQKyZFXFczbeCOEA=",
+		"__VIEWSTATEGENERATOR": "410BFDDA", "__EVENTTARGET": "ctl00$ctl00$body$content$unitControl", "__EVENTARGUMENT": "rearm_7"
 	}
 	uniturls=[f'http://s1.mechhero.com/Unit.aspx?uid={uid}' for uid in get_units_list(CITY)]
 	futures=[]
@@ -48,10 +47,10 @@ def rearm_repair_all_units(CITY,debug=0):
 		futures.append (POOL.apply_async(LoginManager.post,(x,postdata) ))
 		if debug: 
 			print(f'LOG: {__name__}:orderedrearm+repair->',x)
-		time.sleep(1)
+		time.sleep(sleep)
 
 	wait=[r.wait() for r in futures]
-	print('Ordered Rearm+Repair to All units in ',CITY['cid'])
+	# print('INFO: FINISH Rearm+Repair to All units in ',CITY['cid'])
 
 
 if __name__ == '__main__':

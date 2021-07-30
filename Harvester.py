@@ -5,7 +5,7 @@ import time
 
 import LoginManager
 import MapScanner
-
+import NPCExplorer
 def get_all_harvestor_info(CITY):
 	citypage=LoginManager.get_page_soup(f'http://s1.mechhero.com/City.aspx?cid={CITY["cid"]}')
 	harvestTabPage=LoginManager.get_page_soup(f'http://s1.mechhero.com/MissionList.aspx?tab=harvest&cid={CITY["cid"]}')
@@ -20,7 +20,7 @@ def get_all_harvestor_info(CITY):
 	enroutes=[x.parent.parent.find_next_sibling().select_one('td:nth-child(2)').text for x in enroutes]
 	enroutes=[eval(re.search(r'\(\d.+\d\)',x).group()) for x in enroutes]
 
-	print(f'INFO: city {CITY["cid"]} has [{hslots}] hslots available')
+	print(f'HARVEST:INFO: city={CITY["cid"]} hslots=[{hslots}] harvestors={havailable}')
 	return {
 		'hslots':hslots,
 		'havailable':havailable,
@@ -58,14 +58,14 @@ def send_harvestor(CITY,TILE):
 		havailable=0
 
 	resp=LoginManager.post(apiurl,postdata)
+	print(f'HARVEST:SEND: hcost:{TILE.data["hcost"]}->{TILE.coords} |havailable:{havailable}|hslots:{hslots}')
 	havailable-=min(TILE.data['hcost'],havailable)
 	hslots-=1
-	print(f'HARVEST: hcost:{TILE.data["hcost"]}->{TILE.coords} |havailable:{havailable}|hslots:{hslots}')
 	return 'success'
 
 
 #----------------------------------
-def custom_harvest(CITY,mid,n=8,clearence=1,shuffle=0,reverse=0):
+def custom_harvest(CITY,mid,n=8,clearence=2,shuffle=0,reverse=0,sleep=1):
 	'''
 		arg1:CITY a city object with cid and other
 		arg2:mid a mid from world map
@@ -73,37 +73,41 @@ def custom_harvest(CITY,mid,n=8,clearence=1,shuffle=0,reverse=0):
 		[bounding box]:a discrete square grid, if n increase then expands in +x and -y direction 
 		var:htiles = its assured that htiles are only harvestable tiles since we already filtered it
 	'''
-	LoginManager.save_city()
-	global havailable,hslots
+	global havailable,hslots,EXPBACKOFF
 	htiles=MapScanner.get_harvestable_tiles(mid,n=n) 
 	if reverse==1 : htiles.reverse()
 	if shuffle==1 : htiles=mx.shuffle(htiles)
 
+	LoginManager.save_city()
 	fullData=get_all_harvestor_info(CITY)
+	LoginManager.load_city()
 	hslots=fullData['hslots']
 	havailable=	fullData['havailable']
 	clearence=MapScanner.gen_tiles(CITY['cid']-(clearence*513),n=clearence*2+1)
-	LoginManager.load_city()
 	for htile in htiles:
-		TILE=MapScanner.Tile(htile)
-		print('scanning',TILE.coords)
+		try:
+			TILE=MapScanner.Tile(htile)
+		except:
+			print('HARVEST:ERROR:Tile Instantiation Failed -',htile)
+			return
 		if TILE.mid in clearence:
 			TILE.data['hcost']+=1
 			# print('INFO: CLEARING TILE NIGGA! ',TILE.coords)
 
 		if TILE.coords in fullData['enroutes']:
-			print('WARN: redundant mission, Skipping')
+			print('HARVEST:WARN: redundant mission, Skipping')
 			continue
 
 		if havailable==0 :
-			print('FAIL: NEED MORE HARVESTERS to ',TILE.coords)
+			print('HARVEST:FAIL: NEED MORE HARVESTERS to ',TILE.coords)
 			break
 
 		if hslots==0:
-			print('FAIL: R-WORKSHOP MAX MISSIONS LIMIT REACHED')
+			print('HARVEST:FAIL: R-WORKSHOP MAX MISSIONS LIMIT REACHED')
 			break
+
 		state=send_harvestor(CITY,TILE)
-		time.sleep(1)
+		time.sleep(sleep)
 
 
 def gapchup_city_harvest(CITY):
@@ -118,6 +122,7 @@ if __name__ == '__main__':
 		try:
 			# custom_harvest(CITY1,CITY2['sector_east'],)
 			custom_harvest(CITY2,CITY2['sector_east'],clearence=2,shuffle=1,reverse=1)
+			custom_harvest(CITY1,CITY2['sector_east'],clearence=2,shuffle=1)
 		except Exception as e:
 			print('ERROR:',repr(e))
 

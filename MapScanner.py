@@ -18,7 +18,6 @@ class Tile:
 		self.isNPC='NPC location' in self.pageText
 		self.coords=get_tile_coords(mid)
 		self.data=self.analyze_tile()
-		
 		if Tile.DEBUG==1: 
 			[print(k,':',v) for k,v in vars(self).items()]
 

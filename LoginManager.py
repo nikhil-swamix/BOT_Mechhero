@@ -8,16 +8,16 @@ proxlist=mx.jload('database/socks4proxies.set.best')[:20]
 
 #--------------------
 #--------------------
-lastCookie='ASP.NET_SessionId=wn0cwkz5mnhne4wawvlwjr4y; mechhero=3g34hz=&f8wj1h=&4jwhgl=1033&h42sc8=INT&jks2kw=&bi83z1=0'
+lastCookie='ASP.NET_SessionId=tu2lvt4p3go3rp4hb34dkjsv; mechhero=3g34hz=&f8wj1h=&4jwhgl=1033&h42sc8=INT&jks2kw=&bi83z1=0'
 useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0"
 headers={'Cookie':lastCookie, 'User-Agent':useragent }
 homepage='http://s1.mechhero.com/City.aspx'
-loginstate=0
+requests=requests.session()
 
 #--------------------
 def update_proxy():
 	requests.proxies.update(mx.poprandom(proxlist)['proxies'])
-	print('PROXY:',requests.proxies)
+	print('PROXY:SET:',requests.proxies)
 
 
 #--------------------
@@ -29,35 +29,36 @@ def login():
 		"__EVENTTARGET": "ctl00$body$ctl00", 
 		"__EVENTARGUMENT": "login"
 	}
-	# r0=get_page_soup('http://s1.mechhero.com/Default.aspx')
-	# postdata.update({'__VIEWSTATE':r0.select_one('#__VIEWSTATE').attrs.get('value')})
+
+	r0=get_page_soup('http://s1.mechhero.com/Default.aspx')
+	postdata.update({'__VIEWSTATE':r0.select_one('#__VIEWSTATE').attrs.get('value')})
 	r1=requests.post('http://s1.mechhero.com/?stage=1',headers=headers,data=postdata)
 	r2=get_page_soup(r1.url).select_one('div a[href*=gamestate]')['href']
 	r3=get_page_soup(r2)
 	print('login sukkess')
 
 #--------------------
-def save_city():
+def save_city(debug=0):
 	global CITYVAR
 	CITYVAR=mx.get_page_soup(homepage,headers=headers).select_one('.current').attrs['href'].split('cid=')[-1]
+	if debug:
+		print('LOG: city stored')
 
 
 #--------------------
-def load_city():
+def load_city(debug=0):
 	global CITYVAR
 	mx.get_page_soup(f'http://s1.mechhero.com/City.aspx?cid={CITYVAR}',headers=headers)
-	print('city restored')
+	if debug:
+		print('LOG: city restored')
 
 
 #--------------------
 def check_login(pagestr):
-	global loginstate
 	if 'container_login' in pagestr:
-		loginstate=0
 		print('WARN: Boss We Are\'nt Logged In')
 		return False
 	if 'rcid' in pagestr:
-		loginstate=1
 		print('LOG: Already logged in') 
 		return True
 	print('ERROR: login Failed')
@@ -80,7 +81,7 @@ def post(url,data,debug=0):
 		req=requests.post(url,headers=headers,data=data,)
 		return mx.make_soup(req.text)
 	except :
-		print('update proxy')
+		print('LOGIN:ERROR: Proxy NOT Responding, load NEW')
 		update_proxy()
 
 	if debug:
@@ -89,8 +90,8 @@ def post(url,data,debug=0):
 
 
 if 'module call':
-	requests=requests.session()
 	update_proxy()
+	...
 
 
 if __name__ == '__main__':

@@ -1,8 +1,10 @@
 from mxproxy import mx
 import re
-import requests
 import time
-from pprint import pprint
+
+import Defaults
+import LoginManager
+import ExchangePost
 
 def get_resources(CITY):
 	page=LoginManager.get_page_soup(f"http://s1.mechhero.com/City.aspx?cid={CITY['cid']}")
@@ -41,7 +43,7 @@ def get_buildings(cityID):
 	return buildings
 
 #------------------------------
-def build_order(cityID,sid,bt):
+def build(cityID,sid,bt):
 	"""
 		arg:cityID> city id which the player wants get its building list. 
 		arg:sid>	specific id of tile which needs to be upgraded.
@@ -83,11 +85,24 @@ def autobuild(cityID,bt=0,strategy='lowest',maxlvl=20,randmode=1):
 			else:
 				buildTargets.append(minBuilding)
 		for t in buildTargets:
-			build_order(cityID,t['sid'],t['bt'])
-
-	return LoginManager.load_city()
+			build(cityID,t['sid'],t['bt'])
 
 
+	LoginManager.load_city()
+
+
+
+#_________________________________________________
+from Defaults import *
+
+def city1plan():
+	'matured'
+
+def city2plan():
+	autobuild(CITY2['cid'],bt=[3],maxlvl=10)
+
+def city3plan():
+	autobuild(CITY3['cid'],bt=[3],maxlvl=10)
 #_________________________________________________
 #                  _                       _      
 #                 (_)                     | |     
@@ -99,17 +114,6 @@ def autobuild(cityID,bt=0,strategy='lowest',maxlvl=20,randmode=1):
 
                                                                                          
 if __name__ == '__main__':
-	import Defaults
-	import LoginManager
-	import ExchangePost
-	CRONSLEEP=60
-	while True:
-		# autobuild(Defaults.CITY1,bt=[11,12,13],maxlvl=6)
-		autobuild(Defaults.CITY3['cid'],bt=[3],maxlvl=10)
-		print(f'SLEEP: sleeping for {CRONSLEEP}s');time.sleep(CRONSLEEP);CRONSLEEP+=1
-
-
-
 
 	print(get_resources(Defaults.CITY3))
 
