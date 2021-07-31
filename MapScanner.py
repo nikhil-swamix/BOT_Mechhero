@@ -11,11 +11,11 @@ class Tile:
 	DEBUG=0
 	def __init__(self,mid):
 		self.mid=mid
-		self.rawPage=self.get_raw_page(mid)
-		self.pageText=self.get_page_text()
-		self.isDebris='debris field' in self.pageText
-		self.isEmptyGround='empty ground' in self.pageText
-		self.isNPC='NPC location' in self.pageText
+		self.pagesoup=self.get_raw_page(mid)
+		self.pagetext=self.get_page_text()
+		self.isDebris='debris field' in self.pagetext
+		self.isEmptyGround='empty ground' in self.pagetext
+		self.isNPC='NPC location' in self.pagetext
 		self.coords=get_tile_coords(mid)
 		self.data=self.analyze_tile()
 		if Tile.DEBUG==1: 
@@ -26,12 +26,12 @@ class Tile:
 		return LoginManager.get_page_soup(f'http://s1.mechhero.com/Navigation.aspx?mid={mid}')
 
 	def get_page_text(self):
-		return self.rawPage.select_one('.panel.left').text
+		return self.pagesoup.select_one('.panel.left').text
 
 	def analyze_tile(self,):
 		data={}
-		if self.isDebris==True: return parse_debris(self.rawPage)
-		if self.isNPC==True: return parse_npc(self.rawPage)
+		if self.isDebris==True: return parse_debris(self.pagesoup)
+		if self.isNPC==True: return parse_npc(self.pagesoup)
 		if self.isEmptyGround==True: pass
 
 #------------------------------->GETTERS
@@ -52,20 +52,22 @@ def gen_tiles(mid,n=8):
 	return tiles
 
 #------------------------------->PARSERS
-def parse_debris(rawPage):
-	resources=[int(x.text) for x in rawPage.select('.scroll_y > span:nth-child(1) span')]
+def parse_debris(pagesoup):
+	resources=[int(x.text) for x in pagesoup.select('.scroll_y > span:nth-child(1) span')]
+
 	data={
 		'tiletype':'debris',
 		'resources':resources,
+		'has_equipment':pagesoup.select_one('.tiny_eq').__bool__() ,
 		'total':(total:=sum(resources)),
 		'hcost':int(total/2000)
 		}
 	return data
 
-def parse_npc(rawPage):
-	cellUsage=*map(int,re.findall(r'\d+',rawPage.select_one('div.panel:nth-child(1) > p:nth-child(4)').text)),
-	coords=re.search(r'\(\d.*\d\)',rawPage.select_one('.italic').text).group()
-	name=rawPage.select_one('.h2').text
+def parse_npc(pagesoup):
+	cellUsage=*map(int,re.findall(r'\d+',pagesoup.select_one('div.panel:nth-child(1) > p:nth-child(4)').text)),
+	coords=re.search(r'\(\d.*\d\)',pagesoup.select_one('.italic').text).group()
+	name=pagesoup.select_one('.h2').text
 	data={
 		'name':name,
 		'tiletype':'npc',
@@ -129,10 +131,11 @@ def get_npc_tiles(mid,n=8):
 if __name__ == '__main__':
 	import Defaults
 	# CitySector(Defaults.CITY1['cid'])
-	mytile=Tile(124704)
-
+	mytile=Tile(124716)
+	for x in vars(mytile).items():
+		print(x)
 	# mid=123168
 	# ntiles=get_npc_tiles(mid)
 	# print(ntiles)
 
-	prettyprint_map_api_tiles(Defaults.CITY1['sector_root'])
+	# prettyprint_map_api_tiles(Defaults.CITY1['sector_root'])

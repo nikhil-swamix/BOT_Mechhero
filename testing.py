@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
 def proxy_req(url,proxies):
 	t=time.time()
-	requests.get(url,proxies=proxies,timeout=3,params={'dp':'sotta'})
+	requests.get(url,proxies=proxies,timeout=2,params={'dp':'sotta'})
 	tdelta=time.time() - t
 	print(f'via {proxies} -> took {tdelta:.2f}s')
 	return {'proxies':proxies,'tat':tdelta}
@@ -58,13 +58,12 @@ def proxy_benchmark(dbfile,url,proto1='https',proto2='socks4'):
 	print('sorting finished!')
 	return proxyBenchList
 
-
-dbfile='.\\database\\httpproxies.set';		proto1='https';	proto2='https'
-dbfile='.\\database\\socks5proxies.set';	proto1='http';	proto2='socks5'
-dbfile='.\\database\\socks4proxies.set';	proto1='http';	proto2='socks4'
-
-result=proxy_benchmark(dbfile,'https://www.spicejet.com/',proto1=proto1,proto2=proto2)
-mx.jdump(result,dbfile+'.best')
+if __name__ == '__main__':
+	dbfile='.\\database\\httpproxies.set';		proto1='https';	proto2='https'
+	dbfile='.\\database\\socks5proxies.set';	proto1='http';	proto2='socks5'
+	dbfile='.\\database\\socks4proxies.set';	proto1='http';	proto2='socks4'
+	result=proxy_benchmark(dbfile,'https://www.spicejet.com/',proto1=proto1,proto2=proto2)
+	mx.jdump(result,dbfile+'.best')
 
 # TEST POOL
 # poolresult=[mx.apply_async(funkation,'apple','ball') for x in range(200)]

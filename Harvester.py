@@ -11,7 +11,7 @@ def get_all_harvestor_info(CITY):
 	harvestTabPage=LoginManager.get_page_soup(f'http://s1.mechhero.com/MissionList.aspx?tab=harvest&cid={CITY["cid"]}')
 	missionDataAJAX=LoginManager.get_page_soup(f'http://s1.mechhero.com/data.dt?provider=misv&cid={CITY["cid"]}&et=33')
 
-	city_hlevel=int(re.search(r'\d',citypage.select_one('area[title*="Recycling Workshop"]').attrs['title']).group())
+	city_hlevel=int(re.search(r'\d+',citypage.select_one('area[title*="Recycling Workshop"]').attrs['title']).group())
 	city_hmissions=harvestTabPage.select('.content .th').__len__()
 	hslots=city_hlevel - city_hmissions
 	havailable=int(missionDataAJAX.text.split('~')[-1])
@@ -37,7 +37,7 @@ def send_harvestor(CITY,TILE):
 		arg:TILE> class object from MapScanner
 	'''
 	global havailable,hslots
-	apiurl=f'http://s1.mechhero.com/Building.aspx?sid={CITY["harvestor_sid"]}&mid={TILE.mid}&q=4'
+	apiurl=f'http://s1.mechhero.com/Building.aspx?sid={CITY["harvestor_sid"]}&mid={TILE.mid}&q=1'
 	postdata={
 	"__VIEWSTATE": "rAVhS85W+Y/hn8rCAcUv0N8hD4IRzARgOvKDyrAm44BrR03lZUcNpy/YgpmKxi4KrcmU5vYxGGcJKqd+aUPAUN6v5SLy7BQwFS9SFfR2j+0=",
 	"__EVENTTARGET": "ctl00$ctl00$body$content$ctl01",
@@ -49,18 +49,16 @@ def send_harvestor(CITY,TILE):
 	"__EVENTARGUMENT": "harvest",
 	}
 
-	if TILE.data['hcost']==0:
-		# print("No 🚩",TILE.coords)
-		return 'below threshold'
+
 
 	if TILE.data['hcost']>=havailable:
 		postdata.update({"quantity":havailable})
 		havailable=0
 
-	resp=LoginManager.post(apiurl,postdata)
-	hslots-=1
 	havailable-=min(TILE.data['hcost'],havailable)
+	hslots-=1
 	print(f'HARVEST:SEND: hcost:{TILE.data["hcost"]}->{TILE.coords} |havailable:{havailable}|hslots:{hslots}')
+	resp=LoginManager.post(apiurl,postdata)
 	return 'success'
 
 
@@ -80,6 +78,7 @@ def custom_harvest(CITY,mid,n=8,clearence=2,shuffle=0,reverse=0,sleep=1):
 
 	LoginManager.save_city()
 	fullData=get_all_harvestor_info(CITY)
+	print(fullData)
 	LoginManager.load_city()
 	hslots=fullData['hslots']
 	havailable=	fullData['havailable']
@@ -90,9 +89,13 @@ def custom_harvest(CITY,mid,n=8,clearence=2,shuffle=0,reverse=0,sleep=1):
 		except:
 			print('HARVEST:ERROR:Tile Instantiation Failed -',htile)
 			return
+
+		if TILE.data['hcost']==0:
+			# print("No 🚩",TILE.coords)
+			continue
+
 		if TILE.mid in clearence:
-			TILE.data['hcost']+=1
-			# print('INFO: CLEARING TILE NIGGA! ',TILE.coords)
+			TILE.data['hcost']+=2
 
 		if TILE.coords in fullData['enroutes']:
 			print('HARVEST:WARN: redundant mission, Skipping')
@@ -113,10 +116,7 @@ def custom_harvest(CITY,mid,n=8,clearence=2,shuffle=0,reverse=0,sleep=1):
 def gapchup_city_harvest(CITY):
 	custom_harvest(CITY,CITY['sector_root'],n=8,clearence=1)#hemisquareL
 
-
-if __name__ == '__main__':
-	from Defaults import *
-
+def cronjob():
 	highYieldSector=119080
 	while 1:
 		try:
@@ -129,7 +129,13 @@ if __name__ == '__main__':
 		print("sleeping 120s")
 		time.sleep(120)
 
+if __name__ == '__main__':
+	from Defaults import *
+
+
 	"UNIT TESTS"
+	custom_harvest(CITY1,CITY1['sector_root'],shuffle=0,reverse=1,sleep=1)
+
 	# send_harvestor(Defaults.CITY1,MapScanner.Tile(126243))
 	# get_all_harvestor_info(CITY1)
 	# gapchup_city_harvest(CITY1)

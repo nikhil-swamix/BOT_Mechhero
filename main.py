@@ -46,9 +46,9 @@ def sequential_farming_plan():
 			print(f'MAIN:ERROR: REDUCING SPEED by progfactor to avoid API LIMIT! sleep',progbackoff,'s')
 			progbackoff+=progfactor
 			time.sleep(progbackoff)
-			LoginManager.login()
+			LoginManager.auto_login()
 
-		print("MAIN:SLEEP: zzzzz",)
+		print("MAIN:SLEEP: zzzzz",progbackoff,'seconds')
 		time.sleep(progbackoff)
 
 
