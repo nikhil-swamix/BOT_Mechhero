@@ -1,8 +1,9 @@
-from __init__ import *
+from __imports__ import *
 
 # time.sleep(2)
 # cityBuilderCommand=os.system('start cmd /K python ./CityBuilder.py ')
-# time.sleep(2)
+
+
 # autoExploreCommand=os.system('start cmd /K python ./NPCExplorer.py ')
 # time.sleep(2)
 # autoHarvestCommand=os.system('start cmd /K python ./Harvester.py ')
@@ -16,40 +17,35 @@ def sequential_farming_plan():
 			raised by default to prevent crashing of code in runtime.
 		args:none 
 			not required everything is defined inside, raise errors to check
-		vars:progbackoff
+		vars:progsleep
 			its a delay backoff time between successive game
 			actions to prevent over loading servers and being banned. if we
 			get banned it will auto increment to play more slowly, 
 			manual intervention not required.
 	'''
 	LoginManager.auto_login()
-	progbackoff=20
-	progfactor=1
+	progsleep=20
+	progfactor=2
 	while True:
+		sleep=progsleep/10
 		'''EXPLORE HARVEST IN SAME CYCLE '''
 		try:
-			print('*********************| NPC SEQUENCE STARTED |*********************')
-			UnitManager.rearm_repair_all_units(CITY2,sleep=progbackoff/10)
-			NPCExplorer.auto_explore(CITY2,CITY2['sector_east'],sleep=progbackoff/10)
-			NPCExplorer.auto_explore(CITY2,CITY2['sector_root'],sleep=progbackoff/10)
+	
+			print('----------| NPC SEQUENCE START 	   |----------')
+			NPCExplorer.plan1(sleep)
 
-			print('*********************| HARVESTOR SEQUENCE STARTED |*********************-')
-			Harvester.custom_harvest(CITY2,CITY2['sector_east'],shuffle=0,reverse=1,sleep=progbackoff/10)
-			Harvester.custom_harvest(CITY1,CITY1['sector_root'],shuffle=1,sleep=progbackoff/10)
-
-			print('*********************| BUILDER SEQUENCE STARTED |*********************-')
-			# CityBuilder.city3plan()
+			print('----------| HARVESTOR SEQUENCE START|----------')
+			Harvester.plan1(sleep)
 
 		except Exception as e:
-			# raise e
-			print(f'MAIN:ERROR: {repr(e)} EXCEEDING API LIMIT! SLEEP FOR',progbackoff)
-			print(f'MAIN:ERROR: REDUCING SPEED by progfactor to avoid API LIMIT! sleep',progbackoff,'s')
-			progbackoff+=progfactor
-			time.sleep(progbackoff)
+			progsleep*=progfactor
+			print('MAIN:ERROR:',repr(e))
 			LoginManager.auto_login()
+			# raise e
 
-		print("MAIN:SLEEP: zzzzz",progbackoff,'seconds')
-		time.sleep(progbackoff)
+		progsleep-=1
+		print("MAIN:SLEEP: ",progsleep,'seconds')
+		time.sleep(progsleep)
 
 
 #_________________________________________________
@@ -59,4 +55,5 @@ def sequential_farming_plan():
 # | | | | | | (_| | | | | | | (_| (_) | (_| |  __/
 # |_| |_| |_|\__,_|_|_| |_|  \___\___/ \__,_|\___|
 #-------------------------------------------------
-sequential_farming_plan()
+if __name__ == '__main__':
+	sequential_farming_plan()

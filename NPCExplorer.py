@@ -1,22 +1,21 @@
 import re
 import time
 from mxproxy import mx
-import LoginManager as lm
 from MapScanner import get_npc_tiles,Tile 
-from UnitManager import get_unit_datalist,rearm_repair_all_units
 
+from __imports__ import *
 #LOGIC MODULES
-
 
 #--------------------|
 def get_enroutes(CITY):
-	militaryTabPage=lm.get_page_soup(f'http://s1.mechhero.com/MissionList.aspx?tab=military&cid={CITY["cid"]}')
+	militaryTabPage=LoginManager.get_page_soup(f'http://s1.mechhero.com/MissionList.aspx?tab=military&cid={CITY["cid"]}')
 	enroutes=militaryTabPage.select('tr.th .green')
 	enroutes=[x.parent.parent.find_next_sibling().select_one('td:nth-child(2)').text for x in enroutes]
 	enroutes=[eval(re.search(r'\(\d.+\d\)',x).group()) for x in enroutes]
 	return enroutes
 
 #--------------------|
+from UnitManager import get_unit_datalist,rearm_repair_all_units
 def smart_send(CITY,TILE,cellRatio=3.5):
 	posturl=f'http://s1.mechhero.com/UnitListSend.aspx?all=1&mid={TILE.mid}&cid={CITY["cid"]}&at=12'
 	postdata={
@@ -44,32 +43,49 @@ def smart_send(CITY,TILE,cellRatio=3.5):
 				break
 
 	if not armySendable:
-		print(f'NPC:WARN: STRONGENEMY {TILE.data["name"]} :: OUR POWER ({runningCellsSum}) :: REQ {cellRatio*enemyCellsMin}',)
+		print(f'NPC:WARN: Strongenemy {TILE.data["name"]} :: OUR POWER ({runningCellsSum}) :: REQ {cellRatio*enemyCellsMin}',)
 
 	if armySendable:
 		print('NPC:SEND: DEST->',TILE.data)
-		r=lm.post(posturl,postdata)
+		r=LoginManager.post(posturl,postdata)
 
 #--------------------|
 def auto_explore(CITY,sectorId,sleep=1):
-	lm.save_city()
-	print('EXPLORE:INFO: START Scanning city=',CITY['cid'],'in sector=',sectorId)
+	print('NPC:INFO: START Scanning city=',CITY['cid'],'in sector=',sectorId)
 	enroutes=get_enroutes(CITY)
 	ntiles=*map(Tile,get_npc_tiles(sectorId)),
 	for TILE in ntiles:
 		if TILE.coords in enroutes:
-			'skip if mission already undertaken'
-			print('EXPLORE:WARN: Units Already Enroute, skipping',TILE.coords)
+			print('NPC:WARN: Units Already Enroute, skipping',TILE.coords)
 			continue
 		smart_send(CITY,TILE)
-		time.sleep(1)
-	lm.load_city()
+		time.sleep(sleep)
 	
 
-if __name__ == '__main__': 
+def plan1(sleep=1):
+		#CITY2
+		auto_explore(CITY2,CITY2['sector_east'],sleep=sleep)
+		UnitManager.rearm_repair_all_units(CITY2,sleep=sleep)
+		#CITY3
+		auto_explore(CITY3,127272,sleep=sleep)# mini explore tiles
+		UnitManager.rearm_repair_all_units(CITY3,sleep=sleep)
+		print('NPC:INFO: scanner cooldown 60s')
+
+
+
+if __name__ == '__main__':
+	from __imports__ import *
+	progbackoff=30
+	progfactor=2
+	while True:
+		try:
+			plan1()
+		except Exception as e:
+			progbackoff+=progfactor
+			LoginManager.auto_login()
+			print(f'NPC:ERROR: {e}')
+		time.sleep(progbackoff)
+
 	'''TESTING'''
 	...
-
-
-
-
+	

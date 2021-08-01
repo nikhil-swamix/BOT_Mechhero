@@ -25,3 +25,14 @@ EXPLORE:INFO: START Scanning city= 125735 in sector= 123176
 LOG: city restored
 EXPLORE:INFO: START Scanning city= 125735 in sector= 123168
 WARN: STRONGENEMY Dried-up Wellhead :: OUR POWER (4194) :: REQ 12000
+________________________________________________________________________________
+PROXY:NEW: {'http': 'socks4://103.17.90.6:5678'}
+PROXY: Working
+LOGIN:NEWCOOKIE: ASP.NET_SessionId=sv05ksbu40zkr3tcynanpsnn;mechhero=3g34hz=&f8wj1h=&4jwhgl=1033&h42sc8=INT&jks2kw=&bi83z1=0
+EXPLORE:INFO: START Scanning city= 125745 in sector= 127272
+NPC:SEND: DEST-> {'name': 'Forgotten Outpost', 'tiletype': 'npc', 'coords': (45, 6), 'enemycells': (170, 250)}
+NPC:SEND: DEST-> {'name': 'Abandoned Refinery', 'tiletype': 'npc', 'coords': (46, 5), 'enemycells': (170, 250)}
+NPC:SEND: DEST-> {'name': 'Training NPC', 'tiletype': 'npc', 'coords': (45, 4), 'enemycells': (160, 170)}
+NPC:SEND: DEST-> {'name': 'Blackhole', 'tiletype': 'npc', 'coords': (46, 4), 'enemycells': (170, 250)}
+NPC:WARN: STRONGENEMY Training NPC :: OUR POWER (0) :: REQ 560.0
+NPC:WARN: STRONGENEMY Training NPC :: OUR POWER (0) :: REQ 560.0

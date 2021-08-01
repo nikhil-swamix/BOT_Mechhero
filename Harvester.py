@@ -3,9 +3,8 @@ import re
 import requests
 import time
 
-import LoginManager
-import MapScanner
-import NPCExplorer
+from __imports__ import *
+
 def get_all_harvestor_info(CITY):
 	citypage=LoginManager.get_page_soup(f'http://s1.mechhero.com/City.aspx?cid={CITY["cid"]}')
 	harvestTabPage=LoginManager.get_page_soup(f'http://s1.mechhero.com/MissionList.aspx?tab=harvest&cid={CITY["cid"]}')
@@ -37,7 +36,7 @@ def send_harvestor(CITY,TILE):
 		arg:TILE> class object from MapScanner
 	'''
 	global havailable,hslots
-	apiurl=f'http://s1.mechhero.com/Building.aspx?sid={CITY["harvestor_sid"]}&mid={TILE.mid}&q=1'
+	apiurl=f'http://s1.mechhero.com/Building.aspx?sid={CITY["harvestor_sid"]}&mid={TILE.mid}&q=2'
 	postdata={
 	"__VIEWSTATE": "rAVhS85W+Y/hn8rCAcUv0N8hD4IRzARgOvKDyrAm44BrR03lZUcNpy/YgpmKxi4KrcmU5vYxGGcJKqd+aUPAUN6v5SLy7BQwFS9SFfR2j+0=",
 	"__EVENTTARGET": "ctl00$ctl00$body$content$ctl01",
@@ -49,40 +48,38 @@ def send_harvestor(CITY,TILE):
 	"__EVENTARGUMENT": "harvest",
 	}
 
-
-
 	if TILE.data['hcost']>=havailable:
 		postdata.update({"quantity":havailable})
 		havailable=0
 
+	resp=LoginManager.post(apiurl,postdata,)
 	havailable-=min(TILE.data['hcost'],havailable)
 	hslots-=1
 	print(f'HARVEST:SEND: hcost:{TILE.data["hcost"]}->{TILE.coords} |havailable:{havailable}|hslots:{hslots}')
-	resp=LoginManager.post(apiurl,postdata)
 	return 'success'
 
 
 #----------------------------------
-def custom_harvest(CITY,mid,n=8,clearence=2,shuffle=0,reverse=0,sleep=1):
+def custom_harvest(CITY,mid,htiles=[],cleartiles=[],n=8,clearadius=3,shuffle=1,reverse=0,sleep=1):
 	'''
 		arg1:CITY a city object with cid and other
 		arg2:mid a mid from world map
 		kwarg=n:length of [bounding box] generated. n=8,tiles=64
 		[bounding box]:a discrete square grid, if n increase then expands in +x and -y direction 
-		var:htiles = its assured that htiles are only harvestable tiles since we already filtered it
+		var:htiles = its assured that htiles are only harvestable tiles since we already filtered it in mapscanner
 	'''
 	global havailable,hslots,EXPBACKOFF
-	htiles=MapScanner.get_harvestable_tiles(mid,n=n) 
-	if reverse==1 : htiles.reverse()
-	if shuffle==1 : htiles=mx.shuffle(htiles)
 
-	LoginManager.save_city()
 	fullData=get_all_harvestor_info(CITY)
-	print(fullData)
-	LoginManager.load_city()
 	hslots=fullData['hslots']
 	havailable=	fullData['havailable']
-	clearence=MapScanner.gen_tiles(CITY['cid']-(clearence*513),n=clearence*2+1)
+	htiles=MapScanner.get_harvestable_tiles(mid,n=n) + htiles 
+	'''ARG MOD'''
+	if reverse==1 : htiles.reverse()
+	if shuffle==1 : htiles=mx.shuffle(htiles)
+	'''Clearence calculation'''
+	citySurroundings=MapScanner.gen_tiles(CITY['cid']-(clearadius*513),n=clearadius*2+1)
+	cleartiles=citySurroundings+cleartiles
 	for htile in htiles:
 		try:
 			TILE=MapScanner.Tile(htile)
@@ -94,7 +91,7 @@ def custom_harvest(CITY,mid,n=8,clearence=2,shuffle=0,reverse=0,sleep=1):
 			# print("No 🚩",TILE.coords)
 			continue
 
-		if TILE.mid in clearence:
+		if TILE.mid in cleartiles:
 			TILE.data['hcost']+=2
 
 		if TILE.coords in fullData['enroutes']:
@@ -112,32 +109,43 @@ def custom_harvest(CITY,mid,n=8,clearence=2,shuffle=0,reverse=0,sleep=1):
 		state=send_harvestor(CITY,TILE)
 		time.sleep(sleep)
 
+	return LoginManager.load_city()
 
-def gapchup_city_harvest(CITY):
-	custom_harvest(CITY,CITY['sector_root'],n=8,clearence=1)#hemisquareL
 
-def cronjob():
+def citysector_harvest(CITY):
+	custom_harvest(CITY,CITY['sector_root'],n=8)#hemisquareL
+
+
+
+class Constants:
 	highYieldSector=119080
-	while 1:
-		try:
-			# custom_harvest(CITY1,CITY2['sector_east'],)
-			custom_harvest(CITY2,CITY2['sector_east'],clearence=2,shuffle=1,reverse=1)
-			custom_harvest(CITY1,CITY2['sector_east'],clearence=2,shuffle=1)
-		except Exception as e:
-			print('ERROR:',repr(e))
 
-		print("sleeping 120s")
-		time.sleep(120)
+
+#________________start___________________
+#  __  __       ___ __    __  __  __  ___ 
+# |  \|__)|\  /|__ |__)  /  `/  \|  \|__  
+# |__/|  \| \/ |___|  \  \__,\__/|__/|___ 
+#______________drivercode________________
+
+def plan1(sleep=1):
+	custom_harvest(CITY1,CITY2['sector_east'],shuffle=1,sleep=sleep)
+	custom_harvest(CITY2,CITY2['sector_east'],shuffle=1,sleep=sleep)
 
 if __name__ == '__main__':
-	from Defaults import *
+	# from Defaults import *
+	progbackoff=30
+	progfactor=2
+	sleep=progbackoff/10
+
+	while True:
+		try:
+			plan1()
+		except Exception as e:
+			print('HARVESTOR:ERROR:',repr(e))
+
+		print(f'SLEEP:HSCANNER: sleeping for {progbackoff}')
+		time.sleep(progbackoff)
 
 
-	"UNIT TESTS"
-	custom_harvest(CITY1,CITY1['sector_root'],shuffle=0,reverse=1,sleep=1)
-
-	# send_harvestor(Defaults.CITY1,MapScanner.Tile(126243))
-	# get_all_harvestor_info(CITY1)
-	# gapchup_city_harvest(CITY1)
-
-	# print(get_all_harvestor_info(CITY2))
+	# while True:
+	# 	custom_harvest(CITY1,CITY1['sector_root'],shuffle=1,reverse=0,sleep=1)

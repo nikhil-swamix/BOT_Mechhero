@@ -30,20 +30,31 @@ if __name__ == '__main__':
 	# r=requests.get(url,proxies=proxy)
 	# print(r.text)
 
+def update_proxydb(dbfile,proto,ttl=10):
+	url=f'https://api.proxyscrape.com/v2/?request=getproxies&protocol={proto}&timeout=5000&country=all&ssl=all&anonymity=all'
+	pset=set(mx.get_page(url).text.split('\r\n',))
+	pset.remove('') if '' in pset else None
+	mx.setwrite(dbfile,pset)
+	
+
 def proxy_req(url,proxies):
+	'''
+		tries a post request to proxy and benchmarks the time
+	'''
 	t=time.time()
-	requests.get(url,proxies=proxies,timeout=2,params={'dp':'sotta'})
+	requests.post(url,proxies=proxies,timeout=2,data={'ashil':'bo'})
 	tdelta=time.time() - t
-	print(f'via {proxies} -> took {tdelta:.2f}s')
+	print(f'LOG: {proxies} \t->\tT:{tdelta:.2f}s')
 	return {'proxies':proxies,'tat':tdelta}
 
-def proxy_benchmark(dbfile,url,proto1='https',proto2='socks4'):
+
+def proxy_benchmark(dbfile,url,max=1000,proto1='https',proto2='socks4'):
 	'''
 		arg:dbfile> is a nsv (new line seperated values)
 		arg:url> is a standard http/s url to benchmark the proxies
 	'''
-	mx.maxThreads=256
-	data=list(mx.setload(dbfile))[:]
+	mx.maxThreads=128
+	data=list(mx.setload(dbfile))[:max]
 	print('BENCHMARKING ',len(data),'proxies')
 	poolresult=[]
 	proxyBenchList=[]
@@ -58,12 +69,27 @@ def proxy_benchmark(dbfile,url,proto1='https',proto2='socks4'):
 	print('sorting finished!')
 	return proxyBenchList
 
+
+def get_random_proxy():
+	randomproxy=mx.poprandom(mx.jload(dbsavefile)[:10])['proxies']
+	print(randomproxy)
+	r=requests.get('http://teachomatrix.com/',proxies=randomproxy,timeout=5)
+	print(r.text)
+
 if __name__ == '__main__':
-	dbfile='.\\database\\httpproxies.set';		proto1='https';	proto2='https'
+	DBREFRESHTIMEOUT=1*60
 	dbfile='.\\database\\socks5proxies.set';	proto1='http';	proto2='socks5'
+	dbfile='.\\database\\httpproxies.set';		proto1='http';	proto2='http'
 	dbfile='.\\database\\socks4proxies.set';	proto1='http';	proto2='socks4'
-	result=proxy_benchmark(dbfile,'https://www.spicejet.com/',proto1=proto1,proto2=proto2)
-	mx.jdump(result,dbfile+'.best')
+	dbsavefile=dbfile+'.best'
+
+	ptesturl='http://teachomatrix.com/'
+	update_proxydb(dbfile,proto1)
+	proxyBenchList=proxy_benchmark(dbfile,ptesturl,proto1=proto1,proto2=proto2)
+	mx.jdump(proxyBenchList,dbsavefile)
+
+
+
 
 # TEST POOL
 # poolresult=[mx.apply_async(funkation,'apple','ball') for x in range(200)]

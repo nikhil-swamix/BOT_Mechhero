@@ -1,24 +1,47 @@
 import MapScanner
+
+c=126754
 CITY1={
-	'cid':126754,
-	'coords':MapScanner.get_tile_coords(126754),
-	'sector_root':MapScanner.get_root(126754),
+	'cid':c,
+	'coords':MapScanner.get_tile_coords(c),
+	'sector_root':MapScanner.get_root(c),
 	'sector_south':127264,
 	'harvestor_sid':25,
 
 	}
 
+c=125735
 CITY2={
-	'cid':125735,
+	'cid':c,
 	'sector_east':123176,
-	'sector_root':MapScanner.get_root(125735),
-	'coords':MapScanner.get_tile_coords(125735),
+	'sector_root':MapScanner.get_root(c),
+	'coords':MapScanner.get_tile_coords(c),
 	'harvestor_sid':25,
 	}
 
+c=125745
 CITY3={
-	'cid':125745,
-	'coords':MapScanner.get_tile_coords(125745),
-	'sector_root':MapScanner.get_root(125745),
+	'cid':c,
+	'coords':MapScanner.get_tile_coords(c),
+	'sector_root':MapScanner.get_root(c),
 	'harvestor_sid':25,
 	}
+
+
+c=121126
+CITY4={
+	'cid':c,
+	'coords':MapScanner.get_tile_coords(c),
+	'sector_root':MapScanner.get_root(c),
+	'harvestor_sid':25,
+	}
+
+
+c=128306
+CITY5={
+	'cid':c,
+	'coords':MapScanner.get_tile_coords(c),
+	'sector_root':MapScanner.get_root(c),
+	'harvestor_sid':25,
+	}
+
