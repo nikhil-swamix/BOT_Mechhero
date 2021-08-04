@@ -1,0 +1,92 @@
+[
+    {
+        "cid": 126754,
+        "name": "nikhil7 BTC",
+        "coords": [
+            34,
+            9
+        ],
+        "sector_root": 123168,
+        "harvestor_sid": [
+            25
+        ],
+        "exchangpost_sid": [
+            35
+        ]
+    },
+    {
+        "cid": 125735,
+        "name": "ETH 2",
+        "coords": [
+            39,
+            11
+        ],
+        "sector_root": 123168,
+        "harvestor_sid": [
+            25
+        ],
+        "exchangpost_sid": [
+            35
+        ]
+    },
+    {
+        "cid": 125745,
+        "name": "CAKE 3",
+        "coords": [
+            49,
+            11
+        ],
+        "sector_root": 123184,
+        "harvestor_sid": [
+            25
+        ],
+        "exchangpost_sid": [
+            35
+        ]
+    },
+    {
+        "cid": 121126,
+        "name": "BNB 4",
+        "coords": [
+            38,
+            20
+        ],
+        "sector_root": 119072,
+        "harvestor_sid": [
+            25
+        ],
+        "exchangpost_sid": [
+            35
+        ]
+    },
+    {
+        "cid": 128306,
+        "name": "ADA 5",
+        "coords": [
+            50,
+            6
+        ],
+        "sector_root": 127280,
+        "harvestor_sid": [
+            25
+        ],
+        "exchangpost_sid": [
+            35
+        ]
+    },
+    {
+        "cid": 120123,
+        "name": "XMR 6",
+        "coords": [
+            59,
+            22
+        ],
+        "sector_root": 119096,
+        "harvestor_sid": [
+            -1
+        ],
+        "exchangpost_sid": [
+            -1
+        ]
+    }
+]
