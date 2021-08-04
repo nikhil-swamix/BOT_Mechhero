@@ -1,9 +1,8 @@
 from mxproxy import mx
 import re
 import time
-
-import Defaults
 import LoginManager
+
 
 
 # 	___ 					   _	
@@ -13,25 +12,7 @@ import LoginManager
 # | |  | |_| | | | ( (___| |__| | |_| | | | |___ |             
 # |_|   \____|_| |_|\____)\___)_|\___/|_| |_(___/                                                               
 # 
-def get_buildings(cityID):
-	'''
-		arg:cityID> city id which the player wants get its building list. 
-		return> 	a [dict,...] where dict contains crucial info of each building in city
-	'''
-	cityurl=f'http://s1.mechhero.com/City.aspx?cid={cityID}'
-	page=LoginManager.get_page_soup(cityurl)
-	buildings=[]
-	for x in page.select('area'):
-		title=x.attrs.get('title','')
 
-		sid=int(re.search(r'(?<=sid=)\d*',x['href']).group())
-		bt=re.findall(r'(?<=bt=)\d*',x['href'])
-		bt=int(bt[0]) if bt else None
-		level=int(re.search(r'(?<=\()\d*(?=\))',title).group()) if title else -1
-		bdict={'sid':sid,'bt':bt,'title':title,'level':level}
-		# print(bdict)
-		buildings.append(bdict)
-	return buildings
 
 #------------------------------
 def build(cityID,sid,bt,debug=0):
@@ -56,17 +37,19 @@ def build(cityID,sid,bt,debug=0):
 	else:
 		print(f'BUILDER:ERROR: failed order')
 
+	time.sleep(1)
+
 
 #------------------------------
-def autobuild(cityID,btype,maxlvl=20,onlyidle=0,randmode=1):
+def autobuild(CITY,btype,maxlvl=20,onlyidle=1,randmode=1):
 	'''
 		desc:
 			select lowest building from each type and then place build order on them
 		example:
 			for example input 'bt' is a list [1,2,3] then crystal,gas,cells are polulated 
 			and lowest building is placed order , total of 3 orders are placed in this case
-		arg:cityID: 
-			standard id argument of city
+		arg:CITY: 
+			standard id argument of city, its a dict
 		arg:btype:
 			building type which player wants to build, see the game's main docs for more info.
 		kwarg:randmode:
@@ -74,9 +57,9 @@ def autobuild(cityID,btype,maxlvl=20,onlyidle=0,randmode=1):
 		kwarg:maxlvl:
 			max level the building can be placed order, target buildings higher than this level are ignored 
 	'''
-	LoginManager.save_city()
+
 	buildTargets=[]
-	allBuildings=get_buildings(cityID)
+	allBuildings=get_buildings(CITY['cid'])
 	if type(btype) is not list: #type conversion
 		btype=[btype]
 		# print("BUILDER: Please provide btype argument as list ~ [1,2,3]...")
@@ -110,18 +93,18 @@ def autobuild(cityID,btype,maxlvl=20,onlyidle=0,randmode=1):
 			print(e)
 
 	# print('btargets',buildTargets)
-	[build(cityID,t['sid'],t['bt']) for t in buildTargets]
-	return LoginManager.load_city()
+	[build(CITY['cid'],t['sid'],t['bt']) for t in buildTargets]
+	return 
 
 #_________________________________________________
-from Defaults import *
 class Buildings:
-	core= [0, 29, 30, 32, 41, 42]
+	core= [29, 30, 32, 41, 42]
 	mines={'crystal':1,'gas':2,'cells':3}
 	storages=[11,12,13,15]
 	defense=[45,46,17]
 
 #_________________________________________________
+from Defaults import *
 def city1_plan():
 	'matured'
 
@@ -138,8 +121,7 @@ def city4_plan():
 	autobuild(CITY4['cid'],Buildings.core,maxlvl=10)#build these to lvl-1 first
 
 def city5_plan():
-	autobuild(CITY5['cid'],Buildings.mines['cells'],maxlvl=20)
-	# autobuild(CITY5['cid'],Buildings.core,maxlvl=10)#build these to lvl-1 first
+	...
 
 
 
@@ -152,6 +134,8 @@ def city5_plan():
 # |_| |_| |_|\__,_|_|_| |_|  \___\___/ \__,_|\___|
 #-------------------------------------------------                                                              
 if __name__ == '__main__':
-	...
+	while True:
+		autobuild(CITY6['cid'],[3,3,3],maxlvl=10)
+		time.sleep(60)
 
 	# print(get_resources(Defaults.CITY3))

@@ -1,7 +1,7 @@
-import requests
-
+from __imports__ import *
 DEBUG=0
-def get_resources(CITY):
+
+def get_res_info(CITY):
 	page=LoginManager.get_page_soup(f"http://s1.mechhero.com/City.aspx?cid={CITY['cid']}")
 	ivals=re.search(r'(?<=initialize\().+(?=\))',str(page)).group().split(',')
 	crystals=float(ivals[3])
@@ -13,63 +13,83 @@ def get_resources(CITY):
 	deficit=[round(x,-3) for x in map(lambda x,y: x-y,capacity,current)]
 	return {'current':current,'capacity':capacity,'deficit':deficit}
 
+def get_transporters(CITY):
+	u= LoginManager.get_page_soup(f'http://s1.mechhero.com/BuildingRouter.aspx?sid=35&bt=90&cid={CITY["cid"]}')
+	u=u.select_one('.lpane > p:nth-child(3) > b:nth-child(2)').text
+	transporter_count=int(re.search(r'\d*',u).group())
+	return transporter_count
+
 def make_transfer(FCITY,TCITY,resarray):
 	resarray=*map(int,resarray),
 	'http://s1.mechhero.com/Building.aspx?sid=35&bt=90'
 	apiurl=f'http://s1.mechhero.com/Building.aspx?sid=35&bt=90&cid={FCITY["cid"]}'
 	pd={
 		"__VIEWSTATE": "qxtWJnc7zXieXG7kaEc35je+m512AZkn7dbGma/NUhvUwT2jQJih4NRgX0x6/OPUv4MKUfUuRQhfS7pr7MPI1mifPnMKEHffoyABgXgxQAQ=",
-		"rcid": FCITY['cid'],
-		"res0": (resarray[0]),
-		"res1": (resarray[1]),
-		"res2": (resarray[2]),
+		"rcid": FCITY['cid'], "tid": 	(TCITY['cid']), "tcid": (FCITY['cid']),
+		"res0": (resarray[0]), "res1": (resarray[1]), "res2": (resarray[2]),
 		"tpid": "0",
-		"tx": 	(TCITY['coords'][0]),
-		"ty": 	(TCITY['coords'][1]),
-		"tid": 	(TCITY['cid']),
-		"tcid": (FCITY['cid']),
+		"tx": 	(TCITY['coords'][0]), "ty": 	(TCITY['coords'][1]),
 		"tmv": "-1",
 		"tspeed": "20",
-		"__VIEWSTATEGENERATOR": "2465F31B",
-		"__EVENTTARGET": "ctl00$ctl00$body$content$ctl01",
-		"__EVENTARGUMENT": "transfer"
+		"__VIEWSTATEGENERATOR": "2465F31B", "__EVENTTARGET": "ctl00$ctl00$body$content$ctl01", "__EVENTARGUMENT": "transfer"
 	}
 
 	if DEBUG: print('TRANSFER:DEBUG:',pd)
 
-	print(f"TRANSFER: F:{FCITY['cid']}->T:{TCITY['cid']} resources:{resarray}")
+	print(f"TRANSFER:LOG: F:{FCITY['cid']}->T:{TCITY['cid']} resources:{resarray}")
 	return LoginManager.post(apiurl,pd)
 
-def transfer_xsurplus(FROMCITY,TOCITY,sdiv=3,xmin=30000,xbaseline=[100000,100000,50000]):
+
+def transfer_xsurplus(FROMCITY,TOCITY,balance=1,surplusdiv=2,xmin=30000,xbaseline=[100000,100000,75000],debug=0):
 	'''
-		will transfer the surplus of SUPPLIER CITY
+		desc:
+			smart function to balance resources between Producer and consumer cities,
+			will transfer the surplus production of SUPPLIER CITY to destination CITY,
+
+		note:
+			1.get_res_info, of to and from cities.
+			2.calculate surplus with offset to xbaseline. 
+			3.take min function of (deficit and surplus) to avoid overflow.
+			3.check transporters and multiplyX10000 to get max sendable.
 	'''
-	sender=get_resources(FROMCITY)
-	receiver=get_resources(TOCITY)
-	surplus=[max(0,int(a-b))/2 for a,b in zip(sender['current'],xbaseline)]
+	print(f"TRANSFER:INFO: Initiating transfer from [{FROMCITY['name']}]->[{TOCITY['name']}]")
+	sender=get_res_info(FROMCITY) ; receiver=get_res_info(TOCITY)
+	surplus=[int(max(0,(a-b)/surplusdiv)) for a,b in zip(sender['current'],xbaseline)]
 	sendable=[min(a,b) for a,b in zip(surplus,receiver['deficit'])]
+	total_sendable=sum(sendable)
+	transporter_max_sendable=get_transporters(FROMCITY)*10000
+
+	if transporter_max_sendable<=xmin:
+		return print(f'TRANSFER:FAIL: Transporters are not available @[{FROMCITY["name"]}]')
+
+	if transporter_max_sendable<=total_sendable:
+		scalefactor=transporter_max_sendable/total_sendable
+		sendable=[int(n)for n in map(lambda x: x*scalefactor,sendable)]
+		print('TRANSFER:WARN: Limiting factors are transporters')
+
+	# print(sendable)
 
 	if sum(sendable)<=xmin:
 		print(f"TRANSFER:FAIL: Min of [{xmin}] required for transferring ")
 		return False
 
 	# print(sender,sendable)
-	make_transfer(FROMCITY,TOCITY,sendable)
+	if not debug:
+		make_transfer(FROMCITY,TOCITY,sendable)
 	return True
 
-
-#________________________________________
-#  __  __       ___ __    __  __  __  ___ 
-# |  \|__)|\  /|__ |__)  /  `/  \|  \|__  
-# |__/|  \| \/ |___|  \  \__,\__/|__/|___ 
-#________________________________________
+#_________________________________________________
+#                 (_)                     | |     
+#  _ __ ___   __ _ _ _ __     ___ ___   __| | ___ 
+# | '_ ` _ \ / _` | | '_ \   / __/ _ \ / _` |/ _ \
+# | | | | | | (_| | | | | | | (_| (_) | (_| |  __/
+# |_| |_| |_|\__,_|_|_| |_|  \___\___/ \__,_|\___|
+#------------------------------------------------- 
 if 	__name__=='__main__':
-	from __init__ import *
-	PRODUCER=CITY2
-	RECIEVER=CITY1
 
-	(transfer_xsurplus(PRODUCER,CITY5))
-	# (transfer_xsurplus(PRODUCER,CITY4))
-	# (transfer_xsurplus(PRODUCER,CITY3))
-	# (transfer_xsurplus(PRODUCER,CITY1))
-	# t=make_transfer(PRODUCER,CITY1,resarray)
+	# PRODUCER=CITY2
+	for CONSUMER in [CITY4,CITY7]:
+		transfer_xsurplus(CITY2,CONSUMER,surplusdiv=1)
+
+	# transfer_xsurplus(CITY5,CITY6,surplusdiv=2)
+  

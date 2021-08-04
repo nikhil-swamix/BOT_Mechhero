@@ -1,0 +1,20 @@
+
+NPC:
+	NAME: LOST ENCALVE
+	POWER: 640-1000
+	resources: 13k,10.5k,6.5k
+
+NPC:
+	NAME: ABANDONED FORT
+	POWER: 170-250
+	resources: 1.7,2.1,1
+
+NPC:
+	NAME: DESTROYED SCAVENGER CAMP
+	POWER: 170-250
+	resources: [crystals] 2764 [gas] 3064 [power cells] 1481
+
+NPC:
+	NAME: UNKNOWN WHEREABOUTS 
+	POWER: 400-640
+	resources: [crystals] 5858 [gas] 8629 [power cells] 3039

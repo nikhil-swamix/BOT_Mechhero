@@ -1,5 +1,5 @@
 '''this is doc'''
-import time,os,re
+import time,os,re,random
 
 import LoginManager
 from Defaults import *

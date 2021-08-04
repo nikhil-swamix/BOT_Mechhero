@@ -9,7 +9,7 @@ DEBUG=0
 browserCookie='ASP.NET_SessionId=v341qipxodjhe2zxeutdn5vj; mechhero=3g34hz=&f8wj1h=&4jwhgl=1033&h42sc8=INT&jks2kw=&bi83z1=0'
 lastCookie=''
 useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0"
-headers={'Cookie':browserCookie, 'User-Agent':useragent}
+headers={'Cookie':lastCookie, 'User-Agent':useragent}
 loginpage='http://s1.mechhero.com/Default.aspx'
 homepage='http://s1.mechhero.com/City.aspx'
 requestsSession=requests.session()
@@ -17,16 +17,14 @@ requestsSession=requests.session()
 proxyDBmod=0
 def update_proxy():
 	global proxyDBmod
-	slot=proxyDBmod%2
-	proxyDBmod+=1
-	if slot==0:
-		proxlist=mx.jload('database/socks4proxies.set.best')[:]
-	if slot==1:
-		proxlist=mx.jload('database/socks5proxies.set.best')[:]
+	# slot=proxyDBmod%3; proxyDBmod+=1
+	proxlist=mx.jload('database/socks4proxies.set.best')[:]
+	# proxlist=mx.jload('database/socks5proxies.set.best')[:]
+	# proxlist=mx.jload('database/httpproxies.set.best')[:]
 	requestsSession.proxies.update(mx.poprandom(proxlist)['proxies'])
 	try:
 		print('PROXY:NEW:',requestsSession.proxies)
-		r=requestsSession.get('http://teachomatrix.com/',timeout=3)
+		r=requestsSession.get('http://spicejet.com/',timeout=1)
 		print('PROXY: Working')
 	except Exception as e:
 		print(f"PROXY:FAIL: BAD PROXY",requestsSession.proxies)
@@ -44,11 +42,12 @@ def login():
 		print("LOGIN:NEWCOOKIE:",lastCookie)
 	postdata={
 		"__VIEWSTATE": "41/c3qObmn18+xaWQJSXubBkBLKOnESdFi2ZRne2iOPes1OjNXXqJ0yERx9qd3AfzBGsmbylcb1hq0TRQZE+SM+2Qz+qpkQ7pekobz95dXQ=",
-		"player": "nikhil7","password": "nikhil999",
+		"player": "censored","password": "censored",
 		"__VIEWSTATEGENERATOR": "CA0B0334", 
 		"__EVENTTARGET": "ctl00$body$ctl00", 
 		"__EVENTARGUMENT": "login"
 	}
+	update_password=postdata.update(mx.jload('/database/credentials.json')) #{"player": "yourname", "password": "yourpass"}
 	try:
 		# r0=get_page_soup('http://s1.mechhero.com/Default.aspx') # postdata.update({'__VIEWSTATE':r0.select_one('#__VIEWSTATE').attrs.get('value')})
 
@@ -56,10 +55,11 @@ def login():
 		r1=requestsSession.post('http://s1.mechhero.com/?stage=1',headers=headers,data=postdata)
 		stage2url=get_page_soup(r1.url).select_one('div a[href*=gamestate]')['href']
 		r3=get_page_soup(stage2url)
-		# print('LOGIN:INFO: Successfully logged in')
-		check_login()
+		print('LOGIN:INFO: Successfully logged in')
 
 	except Exception as e:
+		update_proxy()
+		login()
 		# raise e
 		print(repr(e))
 
@@ -82,7 +82,6 @@ def auto_login():
 	else:
 		print('LOGIN:ERROR: Boss We Are\'nt Logged In')
 		login()
-		update_proxy()
 
 		
 #--------------------
@@ -114,7 +113,7 @@ def post(url,data,debug=0):
 
 
 	except :
-		print('LOGIN:ERROR: Proxy NOT Responding, load NEW')
+		print('LOGIN:POST:ERROR: Proxy/Server is not accepting our post, bloody rascals, load NEW')
 		update_proxy()
 		return False
 
@@ -128,10 +127,10 @@ if __name__ == '__main__':
 	# update_proxy()
 	# requestsSession.get('https://amir.rachum.com/')
 	auto_login()
+	# login()
 
 
 else:
-	update_proxy()
 	login()
 	# auto_login()
 

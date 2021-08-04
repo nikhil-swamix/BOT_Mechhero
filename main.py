@@ -1,5 +1,10 @@
-from __imports__ import *
+'''
 
+'''
+from __imports__ import *
+from Harvester import *
+from NPCExplorer import auto_explore
+from CityBuilder import Buildings
 # time.sleep(2)
 # cityBuilderCommand=os.system('start cmd /K python ./CityBuilder.py ')
 
@@ -17,35 +22,56 @@ def sequential_farming_plan():
 			raised by default to prevent crashing of code in runtime.
 		args:none 
 			not required everything is defined inside, raise errors to check
-		vars:progsleep
+		vars:cyclesleep
 			its a delay backoff time between successive game
 			actions to prevent over loading servers and being banned. if we
 			get banned it will auto increment to play more slowly, 
 			manual intervention not required.
 	'''
-	LoginManager.auto_login()
-	progsleep=20
-	progfactor=2
+	cyclesleep=10
+	subcyclesleep=1
+	sleep=1
 	while True:
-		sleep=progsleep/10
+		errsignal=0
 		'''EXPLORE HARVEST IN SAME CYCLE '''
+
+		print('----------| NPC SEQUENCE START 	   |----------')
 		try:
-	
-			print('----------| NPC SEQUENCE START 	   |----------')
-			NPCExplorer.plan1(sleep)
-
-			print('----------| HARVESTOR SEQUENCE START|----------')
-			Harvester.plan1(sleep)
-
+			auto_explore(CITY2,123176,)
+			auto_explore(CITY2,CITY2['sector_root'],)
+			auto_explore(CITY4,114976,				)
+			auto_explore(CITY5,127272,				)# mini explore tiles
+			UnitManager.rearm_repair_all_units(CITY2,)
+			UnitManager.rearm_repair_all_units(CITY5,)
 		except Exception as e:
-			progsleep*=progfactor
-			print('MAIN:ERROR:',repr(e))
-			LoginManager.auto_login()
-			# raise e
+			print(f'MAIN:NPC:ERROR {repr(e)}')
+			errsignal=1
 
-		progsleep-=1
-		print("MAIN:SLEEP: ",progsleep,'seconds')
-		time.sleep(progsleep)
+
+		print('----------| HARVESTOR SEQUENCE START|----------')
+		highYieldDudiSector=119088
+		ADA5SelfSector=127272
+		try:
+			custom_harvest(CITY1,CITY1['sector_root'],shuffle= 1,sleep= sleep)
+			custom_harvest(CITY2,123176, cleartiles= gen_tiles(125224,3),)
+			custom_harvest(CITY3,highYieldDudiSector, shuffle= 1,)
+			custom_harvest(CITY5,ADA5SelfSector, cleartiles= gen_tiles(127277,4))
+		except Exception as e:
+			print(f'MAIN:HARVESTOR:ERROR {repr(e)}')
+			errsignal=1
+
+		print('----------| Builder SEQUENCE START 	   |----------')
+		# CityBuilder.autobuild(CITY6,Buildings.core)
+		# CityBuilder.autobuild(CITY7,[0,3])
+
+		if errsignal:
+			print("MAIN:ERROR: ALERT BOSS! we encounter a serious error trying to re-login")
+			LoginManager.login()
+			cyclesleep+=0.5
+
+2661.0
+		print("MAIN:SLEEP: ",cyclesleep,'seconds','var:sleep',sleep)
+		time.sleep(cyclesleep)
 
 
 #_________________________________________________
@@ -55,5 +81,11 @@ def sequential_farming_plan():
 # | | | | | | (_| | | | | | | (_| (_) | (_| |  __/
 # |_| |_| |_|\__,_|_|_| |_|  \___\___/ \__,_|\___|
 #-------------------------------------------------
+
+def function(self):
+	pass
+
 if __name__ == '__main__':
 	sequential_farming_plan()
+	...
+

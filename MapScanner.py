@@ -38,7 +38,7 @@ class Tile:
 def get_tile_coords(mid):
 	x=(mid%512 -256)
 	y=(256 -int(mid/512))
-	return x,y
+	return (x,y)
 #------------------------------->TILE ROOT FINDER
 def get_root(mid):
 	xcord=mid%8 
@@ -131,7 +131,7 @@ def get_npc_tiles(mid,n=8):
 if __name__ == '__main__':
 	import Defaults
 	# CitySector(Defaults.CITY1['cid'])
-	mytile=Tile(124716)
+	mytile=Tile(127784)
 	for x in vars(mytile).items():
 		print(x)
 	# mid=123168

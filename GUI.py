@@ -1,30 +1,15 @@
-#Import all the necessary libraries
 from tkinter import *
 
-#Define the tkinter instance
-win= Toplevel()
-win.title("Rounded Button")
+class BasicGUI:
+   '''docstring'''
+   def __init__(self,arg):
+      self.window = Tk()
+      self.window.title("Welcome to LikeGeeks app")
+      self.lbl = Label(window, text="Hello")
+      lbl.grid(column=0, row=0)
 
-#Define the size of the tkinter frame
-win.geometry("700x300")
+   def render(self):
+      self.window.mainloop()
 
-#Define the working of the button
 
-def my_command():
-   text.config(text= "You have clicked Me...")
 
-#Import the image using PhotoImage function
-click_btn= PhotoImage(file='clickme.png')
-
-#Let us create a label for button event
-img_label= Label(image=click_btn)
-
-#Let us create a dummy button and pass the image
-button= Button(win, image=click_btn,command= my_command,
-borderwidth=0)
-button.pack(pady=30)
-
-text= Label(win, text= "")
-text.pack(pady=30)
-
-win.mainloop()
