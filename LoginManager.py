@@ -47,7 +47,7 @@ def login():
 		"__EVENTTARGET": "ctl00$body$ctl00", 
 		"__EVENTARGUMENT": "login"
 	}
-	update_password=postdata.update(mx.jload('/database/credentials.json')) #{"player": "yourname", "password": "yourpass"}
+	update_password=postdata.update(mx.jload('./database/credentials.json')) #{"player": "yourname", "password": "yourpass"}
 	try:
 		# r0=get_page_soup('http://s1.mechhero.com/Default.aspx') # postdata.update({'__VIEWSTATE':r0.select_one('#__VIEWSTATE').attrs.get('value')})
 

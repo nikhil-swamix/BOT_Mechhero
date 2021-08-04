@@ -88,8 +88,8 @@ def transfer_xsurplus(FROMCITY,TOCITY,balance=1,surplusdiv=2,xmin=30000,xbaselin
 if 	__name__=='__main__':
 
 	# PRODUCER=CITY2
-	for CONSUMER in [CITY4,CITY7]:
-		transfer_xsurplus(CITY2,CONSUMER,surplusdiv=1)
+	for CONSUMER in [CITY7]:
+		transfer_xsurplus(CITY5,CONSUMER,surplusdiv=1)
 
 	# transfer_xsurplus(CITY5,CITY6,surplusdiv=2)
   
