@@ -23,7 +23,7 @@ def get_all_harvestor_info(CITY):
 	enroutes=[x.parent.parent.find_next_sibling().select_one('td:nth-child(2)').text for x in enroutes]
 	enroutes=[eval(re.search(r'\(\d.+\d\)',x).group()) for x in enroutes]
 
-	print(f'HARVEST:INFO: city={CITY["cid"]} hslots=[{hslots}] harvestors={havailable}')
+	print(f'HARVEST:INFO: city={CITY["name"]} hslots=[{hslots}] harvestors={havailable}')
 	return {
 		'hslots':hslots,
 		'havailable':havailable,
@@ -54,23 +54,15 @@ def send_harvestor(CITY,TILE):
 		havailable= 0
 
 	resp= LoginManager.post(apiurl,postdata,)
-	havailable-=min(TILE.data['hcost'],havailable)
-	hslots-=1
-	print(f'HARVEST:SEND: hcost:{TILE.data["hcost"]}->{TILE.coords} |havailable:{havailable}|hslots:{hslots}')
+	havailable -= min(TILE.data['hcost'],havailable)
+	hslots -= 1
+	print(f'HARVEST:SENDING: hcost:{TILE.data["hcost"]}->{TILE.coords} |havailable:{havailable}|hslots:{hslots}')
 	return 'success'
 
 
 #----------------------------------
-def custom_harvest(CITY,
-                   mid,
-                   n= 8,
-                   htiles=[],
-                   cleartiles=[],
-                   clearadius= 2,
-                   shuffle= 0,
-                   reverse= 0,
-                   sleep= 1,
-                   debug= 0):
+def auto_harvest(CITY, mid, n= 8, htiles=[], cleartiles=[], clearadius= 2, shuffle= 0, reverse= 0,
+	sleep= 0.5, debug= 0):
 	'''
 		arg1:CITY a city object with cid and other
 		arg2:mid a mid from world map
@@ -95,7 +87,7 @@ def custom_harvest(CITY,
 	cityNearbyHtiles= get_harvestable_tiles(CITY['cid']-(clearadius*513),n= clearadius*2+1)
 	cityNearbyHtiles= sorted(list( set(cityNearbyHtiles) & set(htiles) ) ) # logical intersection
 	cleartiles= list(set(htiles) & set(cleartiles))
-	finalcleartiles= list(cleartiles + cityNearbyHtiles)
+	finalcleartiles= sorted(list(cleartiles + cityNearbyHtiles))
 	# print(finalcleartiles)
 	htiles= finalcleartiles+htiles
 	for htile in htiles:
@@ -105,21 +97,13 @@ def custom_harvest(CITY,
 
 		try:
 			TILE= Tile(htile)
+			# assert TILE.data['hcost']
 		except Exception as e:
 			print(f'HARVEST:ERROR:Tile Instantiation Failed -',htile)
-			raise e
+			print(TILE.data)
 			return
 
-		if TILE.mid in finalcleartiles:
-			# print('HARVEST:CLEARING:',TILE.coords)
-			TILE.data['hcost']+=2
-
-		if TILE.data['hcost']==0:
-			# print("No 🚩",TILE.mid)
-			continue
-
-		if TILE.coords in fullData['enroutes']:
-			print(f'HARVEST:WARN: redundant mission @{TILE.coords}, Skipping')
+		if TILE.data['hcost']==0: #minimum send threshold
 			continue
 
 		if havailable==0 :
@@ -130,16 +114,20 @@ def custom_harvest(CITY,
 			print(f'HARVEST:FAIL: R-WORKSHOP MAX MISSIONS LIMIT REACHED')
 			break
 
+		if TILE.mid in finalcleartiles: #clear a tile
+			TILE.data['hcost']+=2 
 
-		state= send_harvestor(CITY,TILE)
+		if TILE.coords in fullData['enroutes']:
+			print(f'HARVEST:WARN: redundant mission @{TILE.coords}, Skipping')
+			continue
+
+		if not debug:
+			result= send_harvestor(CITY,TILE)
 
 	return 'success'
 
 def citysector_harvest(CITY):
-	custom_harvest(CITY,CITY['sector_root'],n= 8)#hemisquareL
-
-class Constants:
-	highYieldSector= 119080
+	auto_harvest(CITY,CITY['sector_root'],n= 8)#hemisquareL
 
 
 #________________start___________________
@@ -147,25 +135,24 @@ class Constants:
 # |  \|__)|\  /|__ |__)  /  `/  \|  \|__  
 # |__/|  \| \/ |___|  \  \__,\__/|__/|___ 
 #______________drivercode________________
+highYieldDudiSector=119088
+ADA5_West=127272
+ADA5_Root=127280
 
+def plan():
+	exec(mx.fread('strategies/harvestplan.py'))
 
-def cron():
-	progbackoff= 30
-	progfactor= 2
-	sleep= progbackoff/10
-
-	while True:
-		try:
-			plan1()
-		except Exception as e:
-			print(f'HARVESTOR:ERROR:',repr(e))
-
-		print(f'SLEEP:HSCANNER: sleeping for {progbackoff}')
-		time.sleep(progbackoff)
+# def plancron(): ##continuous plan exec
+# 	while True:
+# 		print('----------| HARVESTOR SEQUENCE START|----------')
+# 		try:
+# 			plan()
+# 		except Exception as e:
+# 			print(f'HARVESTOR:ERROR {repr(e)}')
+# 			LoginManager.login()
+# 		time.sleep(10)
 
 if __name__ == '__main__':
-	custom_harvest(CITY2,123176,shuffle= 1,debug= 0)
-
-	# t=MapScanner.Tile(127279)
-	# print(vars(t))
-	...
+	# plan()
+	# auto_harvest(CITY3,ADA5_West, cleartiles= gen_tiles(ADA5_Root,3))
+	auto_harvest(CITY8,135472, cleartiles=gen_tiles(135472,3) )

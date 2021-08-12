@@ -105,24 +105,17 @@ class Buildings:
 
 #_________________________________________________
 from Defaults import *
-def city1_plan():
-	'matured'
 
-def city2_plan():
-	autobuild(CITY2['cid'],btype=[45],maxlvl=20)
+def allround_development(CITYLIST):
+	for CITY in CITYLIST:
+		autobuild(CITY,storages,maxlvl=18)#build these to lvl-1 first
 
-def city3_plan():
-	autobuild(CITY3['cid'],btype=Buildings.core,maxlvl=10)
-	# autobuild(CITY3['cid'],btype=[*range(100)],maxlvl=10)
-	# autobuild(CITY3['cid'],btype=[3],maxlvl=10)
-#_________________________________________________
-def city4_plan():
-	autobuild(CITY4['cid'],Buildings.mines['cells'],maxlvl=10)
-	autobuild(CITY4['cid'],Buildings.core,maxlvl=10)#build these to lvl-1 first
 
-def city5_plan():
-	...
-
+def plan():
+	# autobuild(CITY7,[3,0],maxlvl=18)#build these to lvl-1 first
+	autobuild(CITY9,  [3,0]+Buildings.core,maxlvl=18)#build these to lvl-1 first
+	autobuild(CITY10, [3,0]+Buildings.core,maxlvl=18)#build these to lvl-1 first
+	autobuild(CITY11, [3,0]+Buildings.core,maxlvl=18)#build these to lvl-1 first
 
 
 
@@ -134,8 +127,8 @@ def city5_plan():
 # |_| |_| |_|\__,_|_|_| |_|  \___\___/ \__,_|\___|
 #-------------------------------------------------                                                              
 if __name__ == '__main__':
-	while True:
-		autobuild(CITY6['cid'],[3,3,3],maxlvl=10)
-		time.sleep(60)
+	print(__file__)
+	# while True:
+	# 	autobuild(CITY6,[3,3,3],maxlvl=10)
+	# 	time.sleep(60)
 
-	# print(get_resources(Defaults.CITY3))

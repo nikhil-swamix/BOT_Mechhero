@@ -54,7 +54,6 @@ def auto_explore(CITY,sectorId,sleep=1):
 	'''
 		desc: automatically explore a given sector from particular city by sending mechs.
 	'''
-
 	print('NPC:INFO: START Scanning city=',CITY['name'],'in sector=',sectorId)
 	enroutes=get_enroutes(CITY)
 	ntiles=*map(Tile,get_npc_tiles(sectorId)),
@@ -64,24 +63,29 @@ def auto_explore(CITY,sectorId,sleep=1):
 			continue
 		smart_send(CITY,TILE)
 		time.sleep(sleep)
-	
+
+#--------------------|
+def plan():
+	try:
+		exec(mx.fread('strategies/npcplan.py'))
+	except:
+		LoginManager.login()
+
+def plancron():	#continuous plan exec
+	while True:
+		print('----------| NPC SEQUENCE START 	   |----------')
+		try:
+			plan()
+		except Exception as e:
+			print(f'MAIN:NPC:ERROR {repr(e)}')
+			LoginManager.login()
+			errsignal=1
+		time.sleep(10)
 
 
 if __name__ == '__main__':
 	from __imports__ import *
-	progbackoff=30
-	progfactor=2
-	while True:
+	# auto_explore(CITY8,131376)#noob sector
+	auto_explore(*[CITY7,135472])
+	# plan()
 
-		try:
-			auto_explore(CITY4,119072,)
-
-		except Exception as e:
-			progbackoff+=progfactor
-			LoginManager.auto_login()
-			print(f'NPC:ERROR: {e}')
-		time.sleep(progbackoff)
-
-	'''TESTING'''
-	...
-	

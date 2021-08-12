@@ -16,7 +16,7 @@
 	},
 	{
 		"cid": 125735,
-		"name": "ETH 2",
+		"name": "ETH 2M",
 		"coords": [
 			39,
 			11
@@ -46,7 +46,7 @@
 	},
 	{
 		"cid": 121126,
-		"name": "BNB 4",
+		"name": "BNB 4M",
 		"coords": [
 			38,
 			20
@@ -61,7 +61,7 @@
 	},
 	{
 		"cid": 128306,
-		"name": "ADA 5",
+		"name": "ADA 5M",
 		"coords": [
 			50,
 			6
@@ -86,17 +86,77 @@
 			25
 		],
 		"exchangpost_sid": [
-			-1
+			35
 		]
 	},
 	{
 		"cid": 121643,
-		"name": "RVN 7",
+		"name": "RVN 7GM",
 		"coords": [
 			43,
 			19
 		],
 		"sector_root": 119080,
+		"harvestor_sid": [
+			25
+		],
+		"exchangpost_sid": [
+			35
+		]
+	},
+	{
+		"cid": 135471,
+		"name": "SOL 8M",
+		"coords": [
+			47,
+			-8
+		],
+		"sector_root": 135464,
+		"harvestor_sid": [
+			25
+		],
+		"exchangpost_sid": [
+			35
+		]
+	},
+	{
+		"cid": 137007,
+		"name": "USDT 9",
+		"coords": [
+			47,
+			-11
+		],
+		"sector_root": 135464,
+		"harvestor_sid": [
+			25
+		],
+		"exchangpost_sid": [
+			35
+		]
+	},
+	{
+		"cid": 114983,
+		"name": "XRP 10",
+		"coords": [
+			39,
+			32
+		],
+		"sector_root": 114976,
+		"harvestor_sid": [
+			-1
+		],
+		"exchangpost_sid": [
+			-1
+		]
+	},
+	{
+		"cid": 121664,
+		"name": "DOT 11",
+		"coords": [
+			64,
+			19
+		],
+		"sector_root": 119104,
 		"harvestor_sid": [
 			-1
 		],

@@ -18,13 +18,13 @@ proxyDBmod=0
 def update_proxy():
 	global proxyDBmod
 	# slot=proxyDBmod%3; proxyDBmod+=1
-	proxlist=mx.jload('database/socks4proxies.set.best')[:]
+	proxlist=mx.jload('database/socks4proxies.set.best')[:20]
 	# proxlist=mx.jload('database/socks5proxies.set.best')[:]
 	# proxlist=mx.jload('database/httpproxies.set.best')[:]
 	requestsSession.proxies.update(mx.poprandom(proxlist)['proxies'])
 	try:
 		print('PROXY:NEW:',requestsSession.proxies)
-		r=requestsSession.get('http://spicejet.com/',timeout=1)
+		r=requestsSession.get('http://spicejet.com/',timeout=3)
 		print('PROXY: Working')
 	except Exception as e:
 		print(f"PROXY:FAIL: BAD PROXY",requestsSession.proxies)
@@ -124,13 +124,14 @@ def post(url,data,debug=0):
 #_________________________________________________
 
 if __name__ == '__main__':
-	# update_proxy()
+	update_proxy()
 	# requestsSession.get('https://amir.rachum.com/')
-	auto_login()
+	# auto_login()
 	# login()
 
 
 else:
+	# update_proxy()
 	login()
 	# auto_login()
 
