@@ -1,17 +1,3 @@
-'''
-
-'''
-from __imports__ import *
-from Harvester import *
-from NPCExplorer import auto_explore
-from CityBuilder import Buildings
-# time.sleep(2)
-# cityBuilderCommand=os.system('start cmd /K python ./CityBuilder.py ')
-
-
-# autoExploreCommand=os.system('start cmd /K python ./NPCExplorer.py ')
-# time.sleep(2)
-# autoHarvestCommand=os.system('start cmd /K python ./Harvester.py ')
 
 def sequential_farming_plan():
 	'''
@@ -29,51 +15,39 @@ def sequential_farming_plan():
 			manual intervention not required.
 	'''
 	cyclesleep=10
-	subcyclesleep=1
-	sleep=1
-	while True:
+	while True: #EXPLORE HARVEST IN SAME CYCLE '''
 		errsignal=0
-		'''EXPLORE HARVEST IN SAME CYCLE '''
-
-		print('----------| NPC SEQUENCE START 	   |----------')
 		try:
-			auto_explore(CITY2,123176,)
-			auto_explore(CITY2,CITY2['sector_root'],)
-			auto_explore(CITY4,114976,				)
-			auto_explore(CITY5,127272,				)# mini explore tiles
-			UnitManager.rearm_repair_all_units(CITY2,)
-			UnitManager.rearm_repair_all_units(CITY5,)
+			pass
 		except Exception as e:
-			print(f'MAIN:NPC:ERROR {repr(e)}')
-			errsignal=1
+			raise e
+		NPCExplorer.plan()
+		Harvester.plan()
+		CityBuilder.plan()
 
-
-		print('----------| HARVESTOR SEQUENCE START|----------')
-		highYieldDudiSector=119088
-		ADA5SelfSector=127272
-		try:
-			custom_harvest(CITY1,CITY1['sector_root'],shuffle= 1,sleep= sleep)
-			custom_harvest(CITY2,123176, cleartiles= gen_tiles(125224,3),)
-			custom_harvest(CITY3,highYieldDudiSector, shuffle= 1,)
-			custom_harvest(CITY5,ADA5SelfSector, cleartiles= gen_tiles(127277,4))
-		except Exception as e:
-			print(f'MAIN:HARVESTOR:ERROR {repr(e)}')
-			errsignal=1
-
-		print('----------| Builder SEQUENCE START 	   |----------')
-		# CityBuilder.autobuild(CITY6,Buildings.core)
-		# CityBuilder.autobuild(CITY7,[0,3])
 
 		if errsignal:
 			print("MAIN:ERROR: ALERT BOSS! we encounter a serious error trying to re-login")
 			LoginManager.login()
 			cyclesleep+=0.5
 
-2661.0
-		print("MAIN:SLEEP: ",cyclesleep,'seconds','var:sleep',sleep)
+		print("MAIN:SLEEP: ",cyclesleep,'seconds')
 		time.sleep(cyclesleep)
 
+def func(f): 
+	f()
+def parallel_multitasking_plan():
+	plans=[NPCExplorer.plan, Harvester.plan,CityBuilder.plan]
+	while True:
+		try:
+			POOL.map(func,plans)
+		except Exception as e:
+			print('MAIN:ERROR: Retrying our plans !!!')
+			pass
 
+def parallel_cmd_execution():
+	autoExploreCommand=os.system('start cmd /K python ./NPCExplorer.py ')
+	autoHarvestCommand=os.system('start cmd /K python ./Harvester.py ')
 #_________________________________________________
 #                 (_)                     | |     
 #  _ __ ___   __ _ _ _ __     ___ ___   __| | ___ 
@@ -81,11 +55,17 @@ def sequential_farming_plan():
 # | | | | | | (_| | | | | | | (_| (_) | (_| |  __/
 # |_| |_| |_|\__,_|_|_| |_|  \___\___/ \__,_|\___|
 #-------------------------------------------------
+#NOTES
+# RAILFACTORY: ETH2 ,ADA5
+# NUCLEAR: BNB4
+# CERAMIC PLATING: CAKE3
+# X-2M,MEDIUM TRANSPORT PLATFORM: CAKE 3 
 
-def function(self):
-	pass
-
+from __imports__ import *
 if __name__ == '__main__':
-	sequential_farming_plan()
-	...
-
+	from multiprocessing import Process,Pool
+	POOL=Pool(3)
+	'''plans'''
+	parallel_multitasking_plan()
+	# sequential_farming_plan()
+	# parallel_cmd_execution()

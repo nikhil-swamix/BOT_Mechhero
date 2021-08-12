@@ -40,20 +40,21 @@ def make_transfer(FCITY,TCITY,resarray):
 	return LoginManager.post(apiurl,pd)
 
 
-def transfer_xsurplus(FROMCITY,TOCITY,balance=1,surplusdiv=2,xmin=30000,xbaseline=[100000,100000,75000],debug=0):
+def transfer_xsurplus(FROMCITY,TOCITY,balance=1,surplusdiv=2,xmin=30000,xbaseline=[100000,100000,100000],debug=0):
 	'''
 		desc:
 			smart function to balance resources between Producer and consumer cities,
 			will transfer the surplus production of SUPPLIER CITY to destination CITY,
 
 		note:
-			1.get_res_info, of to and from cities.
+			1.get_res_info, of "to" and "from" citie.
 			2.calculate surplus with offset to xbaseline. 
 			3.take min function of (deficit and surplus) to avoid overflow.
 			3.check transporters and multiplyX10000 to get max sendable.
 	'''
 	print(f"TRANSFER:INFO: Initiating transfer from [{FROMCITY['name']}]->[{TOCITY['name']}]")
-	sender=get_res_info(FROMCITY) ; receiver=get_res_info(TOCITY)
+	sender=get_res_info(FROMCITY)
+	receiver=get_res_info(TOCITY)
 	surplus=[int(max(0,(a-b)/surplusdiv)) for a,b in zip(sender['current'],xbaseline)]
 	sendable=[min(a,b) for a,b in zip(surplus,receiver['deficit'])]
 	total_sendable=sum(sendable)
@@ -87,9 +88,15 @@ def transfer_xsurplus(FROMCITY,TOCITY,balance=1,surplusdiv=2,xmin=30000,xbaselin
 #------------------------------------------------- 
 if 	__name__=='__main__':
 
-	# PRODUCER=CITY2
-	for CONSUMER in [CITY7]:
-		transfer_xsurplus(CITY5,CONSUMER,surplusdiv=1)
+	FROM=CITY8
+	TO=CITY2
 
-	# transfer_xsurplus(CITY5,CITY6,surplusdiv=2)
+	transfer_xsurplus(FROM,TO,surplusdiv=1,xbaseline=[0,0,0])
+
+	'''
+	transfer_xsurplus(FROM,TO,surplusdiv=1)
+	transfer_xsurplus(FROM,CITY7,surplusdiv=1)
+	transfer_xsurplus(FROM,CITY8,surplusdiv=1)
+	transfer_xsurplus(CITY5,CITY6,surplusdiv=1)
+	'''
   

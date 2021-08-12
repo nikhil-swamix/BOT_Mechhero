@@ -29,7 +29,7 @@ def city_dict(soup):
 	cid=int(re.search(r'\d+',soup['href']).group())
 	blist=get_buildings(cid)
 	# print(cid)
-	CITY={
+	return {
 		'cid':cid,
 		'name':soup.contents[0],
 		'coords':get_tile_coords(cid),
@@ -37,7 +37,6 @@ def city_dict(soup):
 		'harvestor_sid':get_sid(blist,'Recycling Workshop'),
 		'exchangpost_sid':get_sid(blist,'Exchange Post')
 		}
-	return CITY 
 
 
 dbfile='database/city.dict'
@@ -49,6 +48,7 @@ def save_cities_data():
 
 def load_cities_data(freshcopy=0):
 	if freshcopy:
+		print('DEFAULTS:LOG: Fetching fresh copy of all city data')
 		save_cities_data()
 	return mx.jload(dbfile)
 
@@ -58,8 +58,10 @@ def get_sid(blist,btitle,index=0):
 	return  query if query else [-1]
 
 #_________________________________________________/
-for i,cd in enumerate(load_cities_data()):
+CITIES=load_cities_data()
+for i,cd in enumerate(CITIES):
 	exec(f'CITY{i+1}=cd')
-	# print(eval(f'CITY{i+1}'))
 
 
+
+# print(cities)

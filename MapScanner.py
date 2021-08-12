@@ -115,17 +115,15 @@ def get_map_api_data(mid,n=8):
 	return cleararray
 
 def get_harvestable_tiles(mid,n=8):
-	tilelist=gen_tiles(mid,n=n)
 	datalist=get_map_api_data(mid,n=n)
 	hcodes=['20','21','22']
-	harvestiles=[x for x,y in zip(tilelist,datalist) if y in hcodes]
+	harvestiles=[x for x,y in zip(gen_tiles(mid,n=n),datalist) if y in hcodes]
 	return harvestiles
 
 def get_npc_tiles(mid,n=8):
-	tilelist=gen_tiles(mid,n=n)
 	datalist=get_map_api_data(mid,n=n)
 	ncodes=['30','31','32']
-	ntiles=[x for x,y in zip(tilelist,datalist) if y in ncodes]
+	ntiles=[x for x,y in zip(gen_tiles(mid,n=n),datalist) if y in ncodes]
 	return ntiles
 
 if __name__ == '__main__':
