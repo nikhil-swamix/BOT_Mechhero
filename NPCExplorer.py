@@ -1,10 +1,14 @@
+"""
+	This module automates the process of exploring NPCs in the game. 
+	flagship function "auto_explore" which allows uninterrupted and smart execution of NPC tiles.
+"""
+
 import re
 import time
 from mxproxy import mx
 from MapScanner import get_npc_tiles,Tile 
 
 from __imports__ import *
-#LOGIC MODULES
 
 #--------------------|
 def get_enroutes(CITY):
@@ -53,6 +57,8 @@ def smart_send(CITY,TILE,cellRatio=3.5):
 def auto_explore(CITY,sectorId,sleep=1):
 	'''
 		desc: automatically explore a given sector from particular city by sending mechs.
+		apple
+		args:CITY: City Object imported from defaults.py
 	'''
 	print('NPC:INFO: START Scanning city=',CITY['name'],'in sector=',sectorId)
 	enroutes=get_enroutes(CITY)
@@ -89,3 +95,4 @@ if __name__ == '__main__':
 	auto_explore(*[CITY7,135472])
 	# plan()
 
+if 'a'=='b':pass

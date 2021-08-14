@@ -84,7 +84,7 @@ def autobuild(CITY,btype,maxlvl=20,onlyidle=1,randmode=1):
 			if filteredList:
 				minBuilding=sorted(filteredList, key=lambda x:x['level'])[0]
 				if minBuilding['level']>=maxlvl:
-					print(f'skipping {minBuilding} , reason=maxlevel reached')
+					print(f'BUILDER:LOG: skipping {minBuilding} , reason=maxlevel reached')
 					continue
 				buildTargets.append(minBuilding)
 
@@ -116,6 +116,7 @@ def plan():
 	autobuild(CITY9,  [3,0]+Buildings.core,maxlvl=18)#build these to lvl-1 first
 	autobuild(CITY10, [3,0]+Buildings.core,maxlvl=18)#build these to lvl-1 first
 	autobuild(CITY11, [3,0]+Buildings.core,maxlvl=18)#build these to lvl-1 first
+	time.sleep(60)
 
 
 

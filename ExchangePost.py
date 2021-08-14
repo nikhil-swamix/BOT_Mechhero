@@ -79,6 +79,11 @@ def transfer_xsurplus(FROMCITY,TOCITY,balance=1,surplusdiv=2,xmin=30000,xbaselin
 		make_transfer(FROMCITY,TOCITY,sendable)
 	return True
 
+def topup_new_cities_from_source(source_city,last_n=3):
+	for x in cities[-3:]:
+		transfer_xsurplus(source_city,x,surplusdiv=1,xbaseline=[50000,50000,50000])
+
+	pass
 #_________________________________________________
 #                 (_)                     | |     
 #  _ __ ___   __ _ _ _ __     ___ ___   __| | ___ 
@@ -88,13 +93,12 @@ def transfer_xsurplus(FROMCITY,TOCITY,balance=1,surplusdiv=2,xmin=30000,xbaselin
 #------------------------------------------------- 
 if 	__name__=='__main__':
 
-	FROM=CITY8
+	FROM=CITY3
 	TO=CITY2
-
-	transfer_xsurplus(FROM,TO,surplusdiv=1,xbaseline=[0,0,0])
+	transfer_xsurplus(FROM,TO,surplusdiv=1)
+	# topup_new_cities_from_source()
 
 	'''
-	transfer_xsurplus(FROM,TO,surplusdiv=1)
 	transfer_xsurplus(FROM,CITY7,surplusdiv=1)
 	transfer_xsurplus(FROM,CITY8,surplusdiv=1)
 	transfer_xsurplus(CITY5,CITY6,surplusdiv=1)

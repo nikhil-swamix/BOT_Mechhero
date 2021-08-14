@@ -35,7 +35,7 @@ def get_unit_datalist(CITY):
 	return [y.get() for y in [POOL.apply_async(get_unit_data,(x,)) for x in get_units_list(CITY)]]
 
 def rearm_repair_all_units(CITY,debug=0,sleep=1):
-	print('INFO: START Rearm+Repair to All units in ',CITY['cid'])
+	print('INFO: START Rearm+Repair to All units in ',CITY['name'])
 	postdata={
 		"rcid": CITY['cid'],
 		"__VIEWSTATE": "IzwrWd9rYlF+vy4xX1zSXXuu/+4K6em0a7LKgZd70R9WxsLYAjNHSYgekv22BZ2tu5Lmh3FwCmrndZIJ4lWiOIUEJfSUQKyZFXFczbeCOEA=",
