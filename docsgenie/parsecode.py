@@ -12,18 +12,22 @@ def generate_markdown(filepath,output='./'):
 	file=open(filepath,'r').read()
 	astmodule=ast.parse(file)
 	moduleDocstring=titlecase_text(ast.get_docstring(astmodule,clean=1)).replace('\n',' ')
-	print(f"# MODULE: {modulename} \n {moduleDocstring}")
+	print(f"# MODULE: {modulename} \n {moduleDocstring}\n")
 	for x in astmodule.body:
 		if type(x) in [ast.FunctionDef,ast.ClassDef,ast.Module]:#logic sugar
 			docstring=ast.get_docstring(x,clean=1)
 			dsmessage=''
-			print(f"\n---")
-			print(f'## Function: **{x.name}**({",".join("<ins>"+y.arg+"</ins>" for y in x.args.args)})')
+			# print(f"\n---")
+			try:
+				print(vars(x.args.defaults[0]))
+			except:
+				pass
+			print(f'## Function: **{x.name}**({",".join(y.arg for y in x.args.args)})')
 			if not docstring:
 				dsmessage+='Sorry, Developer Has not provided docstring for this function'
 			else:
 				dsmessage+="\n".join('- '+x for x in docstring.split('\n'))
-			print(dsmessage)
+			print(dsmessage+'<br><br>\n')
 
 
 if __name__ == '__main__':

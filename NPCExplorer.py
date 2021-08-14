@@ -72,12 +72,17 @@ def auto_explore(CITY,sectorId,sleep=1):
 
 #--------------------|
 def plan():
+	""" 
+	implements the plan in the live text file. 
+	if the contents of the dependency "npcplan.py" change then the strategy also changes in realtime 
+	"""
 	try:
 		exec(mx.fread('strategies/npcplan.py'))
 	except:
 		LoginManager.login()
 
-def plancron():	#continuous plan exec
+def plancron():	
+	"""continuous plan exec in while loop"""
 	while True:
 		print('----------| NPC SEQUENCE START 	   |----------')
 		try:
