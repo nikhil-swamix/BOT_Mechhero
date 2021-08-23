@@ -18,28 +18,27 @@ proxyDBmod=0
 def update_proxy():
 	global proxyDBmod
 	# slot=proxyDBmod%3; proxyDBmod+=1
-	proxlist=mx.jload('database/socks4proxies.set.best')[:20]
 	# proxlist=mx.jload('database/socks5proxies.set.best')[:]
 	# proxlist=mx.jload('database/httpproxies.set.best')[:]
-	requestsSession.proxies.update(mx.poprandom(proxlist)['proxies'])
 	try:
+		proxlist=mx.jload('database/socks4proxies.set.best')[:20]
+		requestsSession.proxies.update(mx.poprandom(proxlist)['proxies'])
 		print('PROXY:NEW:',requestsSession.proxies)
 		r=requestsSession.get('http://spicejet.com/',timeout=3)
 		print('PROXY: Working')
 	except Exception as e:
-		print(f"PROXY:FAIL: BAD PROXY",requestsSession.proxies)
-		update_proxy()
+		print(f"PROXY:FAIL: UNABLE TO REACH PROXY",requestsSession.proxies)
 
 
-#--------------------
 
+#----------------------------------------
 def login():
 	def refresh_cookie():
 		global lastCookie
 		c=requests.get(loginpage)
 		lastCookie=';'.join([f'{k}={v}' for k,v in c.cookies.items()])
 		headers.update({'Cookie':lastCookie})
-		print("LOGIN:NEWCOOKIE:",lastCookie)
+		# print("LOGIN:COOKIE:",lastCookie)
 	postdata={
 		"__VIEWSTATE": "41/c3qObmn18+xaWQJSXubBkBLKOnESdFi2ZRne2iOPes1OjNXXqJ0yERx9qd3AfzBGsmbylcb1hq0TRQZE+SM+2Qz+qpkQ7pekobz95dXQ=",
 		"player": "censored","password": "censored",
@@ -58,11 +57,13 @@ def login():
 		print('LOGIN:INFO: Successfully logged in')
 
 	except Exception as e:
-		update_proxy()
-		login()
 		# raise e
+		update_proxy()
 		print(repr(e))
+		time.sleep(5)
+		login()
 
+#----------------------------------------
 def check_login():
 	sniffsoup=get_page_soup(homepage)
 

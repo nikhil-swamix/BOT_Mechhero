@@ -76,7 +76,7 @@
 	},
 	{
 		"cid": 120123,
-		"name": "XMR 6",
+		"name": "XMR 6JP",
 		"coords": [
 			59,
 			22
@@ -121,7 +121,7 @@
 	},
 	{
 		"cid": 137007,
-		"name": "USDT 9",
+		"name": "USDT 9TP",
 		"coords": [
 			47,
 			-11
@@ -143,10 +143,10 @@
 		],
 		"sector_root": 114976,
 		"harvestor_sid": [
-			-1
+			25
 		],
 		"exchangpost_sid": [
-			-1
+			35
 		]
 	},
 	{
@@ -155,6 +155,66 @@
 		"coords": [
 			64,
 			19
+		],
+		"sector_root": 119104,
+		"harvestor_sid": [
+			25
+		],
+		"exchangpost_sid": [
+			35
+		]
+	},
+	{
+		"cid": 118576,
+		"name": "INR 12",
+		"coords": [
+			48,
+			25
+		],
+		"sector_root": 114992,
+		"harvestor_sid": [
+			25
+		],
+		"exchangpost_sid": [
+			35
+		]
+	},
+	{
+		"cid": 135977,
+		"name": "FIL 13",
+		"coords": [
+			41,
+			-9
+		],
+		"sector_root": 135464,
+		"harvestor_sid": [
+			25
+		],
+		"exchangpost_sid": [
+			35
+		]
+	},
+	{
+		"cid": 118580,
+		"name": "DOGE 14",
+		"coords": [
+			52,
+			25
+		],
+		"sector_root": 114992,
+		"harvestor_sid": [
+			25
+		],
+		"exchangpost_sid": [
+			35
+		]
+	},
+	{
+		"cid": 121153,
+		"name": "ERGO 15",
+		"coords": [
+			65,
+			20
 		],
 		"sector_root": 119104,
 		"harvestor_sid": [

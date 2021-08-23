@@ -34,20 +34,24 @@ def sequential_farming_plan():
 		print("MAIN:SLEEP: ",cyclesleep,'seconds')
 		time.sleep(cyclesleep)
 
-def func(f): 
-	f()
 
+#_________________________________________________
 def parallel_multitasking_plan():
 	plans=[NPCExplorer.plan, Harvester.plan,CityBuilder.plan]
 	c=0
 	while True:
 		try:
-			POOL.apply_async(plans[c % len(plans)])
+			# POOL.map_async(plans[c % len(plans)])
+			promise=POOL.map_async(func,plans)
+			promise.wait()
 			c+=1
 		except Exception as e:
-			print('MAIN:ERROR: Retrying our plans !!!')
-			pass
+			print('MAIN:ERROR: Retrying our plans !!!',e)
+			return
 
+def func(f): f()
+
+#_________________________________________________
 def parallel_cmd_execution():
 	autoExploreCommand=os.system('start cmd /K python ./NPCExplorer.py ')
 	autoHarvestCommand=os.system('start cmd /K python ./Harvester.py ')
@@ -61,15 +65,16 @@ def parallel_cmd_execution():
 #NOTES
 # RAILFACTORY: ETH2 ,ADA5
 # NUCLEAR: BNB4
-# CERAMIC PLATING: CAKE3
-# X-2M,MEDIUM TRANSPORT PLATFORM: CAKE 3 
+# CERAMIC PLATING: CAKE3,BNB4,RVN7,XMR6
+# FORCEFIELD: ADA5,BTC1,SOL8
+# X-2M,MEDIUM TRANSPORT PLATFORM: CAKE3 ,USDT9
 # JETPACK: XMR 6
 
-from __imports__ import *
 if __name__ == '__main__':
+	from __imports__ import *
 	from multiprocessing import Process,Pool
-	# POOL=Pool(3)
-	# parallel_multitasking_plan()
+	POOL=Pool(3)
+	parallel_multitasking_plan()
 
 
 	"""plans"""

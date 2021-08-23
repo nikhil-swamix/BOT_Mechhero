@@ -2,12 +2,12 @@ import LoginManager
 from MapScanner import get_tile_coords,get_root
 import re
 from mxproxy import mx
-# from  CityBuilder import get_buildings
 
 def get_buildings(cityID):
 	'''
-		arg:cityID> city id which the player wants get its building list. 
-		return> 	a [dict,...] where dict contains crucial info of each building in city
+		
+		arg:cityID: city id which the player wants get its building list. 
+		return: 	a [dict,...] where dict contains crucial info of each building in city
 	'''
 	cityurl=f'http://s1.mechhero.com/City.aspx?cid={cityID}'
 	page=LoginManager.get_page_soup(cityurl)
@@ -37,7 +37,7 @@ def city_dict(soup):
 		'harvestor_sid':get_sid(blist,'Recycling Workshop'),
 		'exchangpost_sid':get_sid(blist,'Exchange Post')
 		}
-
+	time.sleep(0.5)
 
 dbfile='database/city.dict'
 def save_cities_data():

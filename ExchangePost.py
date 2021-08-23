@@ -1,3 +1,7 @@
+"""
+	This module manages the transfer of resources to different cities. 
+	we can customize the sending by giving arguments.
+"""
 from __imports__ import *
 DEBUG=0
 
@@ -36,11 +40,14 @@ def make_transfer(FCITY,TCITY,resarray):
 
 	if DEBUG: print('TRANSFER:DEBUG:',pd)
 
-	print(f"TRANSFER:LOG: F:{FCITY['cid']}->T:{TCITY['cid']} resources:{resarray}")
+	print(f"TRANSFER:LOG: F:[{FCITY['name']}]->T:[{TCITY['name']}] resources:{resarray}")
 	return LoginManager.post(apiurl,pd)
 
 
-def transfer_xsurplus(FROMCITY,TOCITY,balance=1,surplusdiv=2,xmin=30000,xbaseline=[100000,100000,100000],debug=0):
+def transfer_xsurplus(FROMCITY,TOCITY,
+	balance=1,surplusdiv=2,xmin=30000,
+	xbaseline=[100000,100000,100000],
+	debug=0):
 	'''
 		desc:
 			smart function to balance resources between Producer and consumer cities,
@@ -52,10 +59,10 @@ def transfer_xsurplus(FROMCITY,TOCITY,balance=1,surplusdiv=2,xmin=30000,xbaselin
 			3.take min function of (deficit and surplus) to avoid overflow.
 			3.check transporters and multiplyX10000 to get max sendable.
 	'''
-	print(f"TRANSFER:INFO: Initiating transfer from [{FROMCITY['name']}]->[{TOCITY['name']}]")
+	print(f"TRANSFER:INFO: Initiating transfer [{FROMCITY['name']}]->[{TOCITY['name']}]")
 	sender=get_res_info(FROMCITY)
 	receiver=get_res_info(TOCITY)
-	surplus=[int(max(0,(a-b)/surplusdiv)) for a,b in zip(sender['current'],xbaseline)]
+	surplus=[int(max(0,max(0,a-b)/surplusdiv)) for a,b in zip(sender['current'],xbaseline)]
 	sendable=[min(a,b) for a,b in zip(surplus,receiver['deficit'])]
 	total_sendable=sum(sendable)
 	transporter_max_sendable=get_transporters(FROMCITY)*10000
@@ -74,16 +81,18 @@ def transfer_xsurplus(FROMCITY,TOCITY,balance=1,surplusdiv=2,xmin=30000,xbaselin
 		print(f"TRANSFER:FAIL: Min of [{xmin}] required for transferring ")
 		return False
 
-	# print(sender,sendable)
 	if not debug:
 		make_transfer(FROMCITY,TOCITY,sendable)
+	else:
+		print(sender,sendable)
 	return True
 
-def topup_new_cities_from_source(source_city,last_n=3):
-	for x in cities[-3:]:
-		transfer_xsurplus(source_city,x,surplusdiv=1,xbaseline=[50000,50000,50000])
 
-	pass
+def topup_new_cities_from_source(source_city,last_n=3,xbaseline=[]):
+	for x in reversed(CITIES[-last_n:]):
+		transfer_xsurplus(source_city,x,surplusdiv=1,xbaseline=xbaseline)
+		time.sleep(2)
+
 #_________________________________________________
 #                 (_)                     | |     
 #  _ __ ___   __ _ _ _ __     ___ ___   __| | ___ 
@@ -93,14 +102,10 @@ def topup_new_cities_from_source(source_city,last_n=3):
 #------------------------------------------------- 
 if 	__name__=='__main__':
 
-	FROM=CITY3
-	TO=CITY2
-	transfer_xsurplus(FROM,TO,surplusdiv=1)
-	# topup_new_cities_from_source()
 
-	'''
-	transfer_xsurplus(FROM,CITY7,surplusdiv=1)
-	transfer_xsurplus(FROM,CITY8,surplusdiv=1)
-	transfer_xsurplus(CITY5,CITY6,surplusdiv=1)
-	'''
-  
+	FROM= 	CITY7
+	TO=		CITY11
+	xbaseline=[00000,00000,700000]
+
+	transfer_xsurplus(FROM,TO,surplusdiv=1,xbaseline=xbaseline)
+	# topup_new_cities_from_source(FROM,last_n=4,xbaseline=xbaseline)

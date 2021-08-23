@@ -32,22 +32,23 @@ def smart_send(CITY,TILE,cellRatio=3.5):
 		"__EVENTTARGET": "ctl00$ctl00$body$content$unitListSendControl",
 		"__EVENTARGUMENT": "wrattack"
 	}
+	armySendable=False
 	runningCellsSum=0
 	enemyCellsMin=TILE.data['enemycells'][0]
-	armySendable=False
+	armySendCells=int(enemyCellsMin*(cellRatio+(enemyCellsMin/3500)))
 	udatalist= mx.shuffle([unit for unit in get_unit_datalist(CITY) if unit['isFree']])
 	for u in udatalist:
 		if u['isFree'] and not u['serviceRequired'] :
 			# print (u)
 			runningCellsSum+=u['cells']
 			postdata.update({f'unit_{u["uid"]}':'on'})
-			if runningCellsSum>=cellRatio*enemyCellsMin:
+			if runningCellsSum>=armySendCells:
 				# print(f'runningCellsSum is {runningCellsSum}, army sendable to {TILE.coords}')
 				armySendable=True
 				break
 
 	if not armySendable:
-		print(f'NPC:WARN: Strongenemy {TILE.data["name"]} :: OUR POWER ({runningCellsSum}) :: REQ {cellRatio*enemyCellsMin}',)
+		print(f'NPC:WARN: Strongenemy {TILE.data["name"]} :: OUR POWER ({runningCellsSum}) :: REQ {armySendCells}',)
 
 	if armySendable:
 		print('NPC:SEND: DEST->','|'.join([f'{k}={v}' for k,v in TILE.data.items()]))
@@ -95,9 +96,9 @@ def plancron():
 
 
 if __name__ == '__main__':
-	from __imports__ import *
+	import math
 	# auto_explore(CITY8,131376)#noob sector
-	auto_explore(*[CITY7,135472])
-	# plan()
+	auto_explore(*[CITY4,CITY4['sector_root']])
+	# print(math.exp(5))
 
-if 'a'=='b':pass
+	# plan()
