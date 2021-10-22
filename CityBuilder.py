@@ -6,9 +6,6 @@ from mxproxy import mx
 import re
 import time
 import LoginManager
-from Defaults import *
-
-
 
 #-------------------------------------------------
 # 	___ 					   _	
@@ -97,7 +94,7 @@ def autobuild(CITY,btype,maxlvl=20,onlyidle=1,randmode=1,batchsize=2):
 		b=[]
 		for x in allBuildings:
 			if 'building now' in x['title'] or 'queued' in x['title']:
-				print('skipping',x)
+				# print('skipping',x)
 				continue
 			else:
 				b.append(x)
@@ -111,7 +108,7 @@ def autobuild(CITY,btype,maxlvl=20,onlyidle=1,randmode=1,batchsize=2):
 			if filteredList:
 				minBuilding=sorted(filteredList, key=lambda x:x['level'])[0]
 				if minBuilding['level']>=maxlvl:
-					print(f'BUILDER:LOG: skipping {minBuilding} , reason=maxlevel reached')
+					# print(f'BUILDER:LOG: skipping {minBuilding} , reason=maxlevel reached')
 					continue
 				buildTargets.append(minBuilding)
 
@@ -137,14 +134,16 @@ def develop_new_cities(lastn=4):
 
 
 def plan():
+	print(__name__,'PLAN IS STARTING')
 	# autobuild(CITY7,[3,0],maxlvl=18)#build these to lvl-1 first
-	newcities=list(reversed(CITIES[-4:]))
-	new_city_base_plan=[3,0]+Buildings.core
-	for c in newcities:
-		autobuild(c,  new_city_base_plan,maxlvl=18)#build these to lvl-1 first
-		autobuild(c,  Buildings.storages,maxlvl=10)#build these to lvl-1 first
-
-	# time.sleep(60)
+	while True:
+		newcities=list(reversed(CITIES[-4:]))
+		new_city_base_plan=[3,0]+Buildings.core
+		for c in newcities:
+			autobuild(c,  new_city_base_plan,maxlvl=18)#build these to lvl-1 first
+			autobuild(c,  Buildings.storages,maxlvl=19)#build these to lvl-1 first
+		Logger.info(f"CITY BUILDER SLEEPING")
+		time.sleep(120)
 
 
 

@@ -7,35 +7,29 @@ import re
 import time
 from mxproxy import mx
 from MapScanner import get_npc_tiles,Tile 
-
 from __imports__ import *
+from City import *
+import UnitManager
+# import multiprocessing as mp
 
-#--------------------|
-def get_enroutes(CITY):
-	militaryTabPage=LoginManager.get_page_soup(f'http://s1.mechhero.com/MissionList.aspx?tab=military&cid={CITY["cid"]}')
-	enroutes=militaryTabPage.select('tr.th .green')
-	enroutes=[x.parent.parent.find_next_sibling().select_one('td:nth-child(2)').text for x in enroutes]
-	enroutes=[eval(re.search(r'\(\d.+\d\)',x).group()) for x in enroutes]
-	return enroutes
+# import colorama
+# colorama.init()
 
 #--------------------|
 from UnitManager import get_unit_datalist,rearm_repair_all_units
-def smart_send(CITY,TILE,cellRatio=3.5):
+def smart_send(CITY,TILE,cellRatio=3,debug=0):
 	posturl=f'http://s1.mechhero.com/UnitListSend.aspx?all=1&mid={TILE.mid}&cid={CITY["cid"]}&at=12'
 	postdata={
 		"__VIEWSTATE": "d7RKjPEUzZ+XmJGCnyQI02PZpb5CNo7VCQnu+D86b0Kpn4zA9Im0+nysgemkIbg6Uzb+lNLgzIoxlzmeY5SzGqE/SoVlQrzm2WUJ0iTBGDY=",
-		"rcid": CITY['cid'],
-		"tpid": "0",
+		"rcid": CITY['cid'], "tpid": "0",
 		"tx": TILE.coords[0], "ty": TILE.coords[1], 
 		"tid": '-1', "tcid": CITY['cid'], "tmv": -1,
-		"__VIEWSTATEGENERATOR": "B572D792",
-		"__EVENTTARGET": "ctl00$ctl00$body$content$unitListSendControl",
-		"__EVENTARGUMENT": "wrattack"
+		"__VIEWSTATEGENERATOR": "B572D792", "__EVENTTARGET": "ctl00$ctl00$body$content$unitListSendControl", "__EVENTARGUMENT": "wrattack"
 	}
 	armySendable=False
 	runningCellsSum=0
 	enemyCellsMin=TILE.data['enemycells'][0]
-	armySendCells=int(enemyCellsMin*(cellRatio+(enemyCellsMin/3500)))
+	armySendCells=int(enemyCellsMin*(cellRatio+(enemyCellsMin/3000)))
 	udatalist= mx.shuffle([unit for unit in get_unit_datalist(CITY) if unit['isFree']])
 	for u in udatalist:
 		if u['isFree'] and not u['serviceRequired'] :
@@ -47,12 +41,12 @@ def smart_send(CITY,TILE,cellRatio=3.5):
 				armySendable=True
 				break
 
-	if not armySendable:
-		print(f'NPC:WARN: Strongenemy {TILE.data["name"]} :: OUR POWER ({runningCellsSum}) :: REQ {armySendCells}',)
-
 	if armySendable:
-		print('NPC:SEND: DEST->','|'.join([f'{k}={v}' for k,v in TILE.data.items()]))
+		Logger.success('NPC:SEND: DEST->','|'.join([f'{k}={v}' for k,v in TILE.data.items()]))
 		r=LoginManager.post(posturl,postdata)
+
+	if not armySendable and debug:
+		Logger.warn(f'NPC: Strongenemy {TILE.data["name"]} :: OUR POWER ({runningCellsSum}) :: REQ {armySendCells}',)
 
 #--------------------|
 def auto_explore(CITY,sectorId,sleep=1):
@@ -61,12 +55,12 @@ def auto_explore(CITY,sectorId,sleep=1):
 		apple
 		args:CITY: City Object imported from defaults.py
 	'''
-	print('NPC:INFO: START Scanning city=',CITY['name'],'in sector=',sectorId)
-	enroutes=get_enroutes(CITY)
+	Logger.info('NPC: START Scanning city=',CITY['name'],' in sector=',sectorId)
+	enroutes=get_military_enroutes(CITY)
 	ntiles=*map(Tile,get_npc_tiles(sectorId)),
 	for TILE in ntiles:
 		if TILE.coords in enroutes:
-			print('NPC:WARN: Units Already Enroute, skipping',TILE.coords)
+			Logger.warn('NPC: Units Already Enroute, skipping',TILE.coords)
 			continue
 		smart_send(CITY,TILE)
 		time.sleep(sleep)
@@ -75,30 +69,22 @@ def auto_explore(CITY,sectorId,sleep=1):
 def plan():
 	""" 
 	implements the plan in the live text file. 
-	if the contents of the dependency "npcplan.py" change then the strategy also changes in realtime 
+	if the contents of the dependency "strategies/npcplan.py" 
+	change then the strategy also changes in realtime since exec is used.
 	"""
-	try:
-		exec(mx.fread('strategies/npcplan.py'))
-	except:
-		LoginManager.login()
-
-def plancron():	
-	"""continuous plan exec in while loop"""
 	while True:
-		print('----------| NPC SEQUENCE START 	   |----------')
 		try:
-			plan()
+			exec(mx.fread('strategies/npcplan.py'))
 		except Exception as e:
-			print(f'MAIN:NPC:ERROR {repr(e)}')
+			print(__name__,e)
 			LoginManager.login()
-			errsignal=1
 		time.sleep(10)
 
 
 if __name__ == '__main__':
-	import math
 	# auto_explore(CITY8,131376)#noob sector
-	auto_explore(*[CITY4,CITY4['sector_root']])
+	# auto_explore(CITY5,CITY5['sector_root'])
 	# print(math.exp(5))
-
-	# plan()
+	# smart_send(CITY1,Tile(118536))
+	plan()
+	...

@@ -1,18 +1,16 @@
 from mxproxy import mx
 import requests
-import re
-import os
-import time
+import re; import os ;import time ;import pickle
+import random
+# import multiprocessing as mp
 
 DEBUG=0
 #--------------------
-browserCookie='ASP.NET_SessionId=v341qipxodjhe2zxeutdn5vj; mechhero=3g34hz=&f8wj1h=&4jwhgl=1033&h42sc8=INT&jks2kw=&bi83z1=0'
-lastCookie=''
-useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0"
-headers={'Cookie':lastCookie, 'User-Agent':useragent}
-loginpage='http://s1.mechhero.com/Default.aspx'
+headers={'Cookie':'', 'User-Agent':"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0"}
 homepage='http://s1.mechhero.com/City.aspx'
+
 requestsSession=requests.session()
+cookiebox=mx.jload('database/cookiebox.json')
 #--------------------
 proxyDBmod=0
 def update_proxy():
@@ -23,50 +21,71 @@ def update_proxy():
 	try:
 		proxlist=mx.jload('database/socks4proxies.set.best')[:20]
 		requestsSession.proxies.update(mx.poprandom(proxlist)['proxies'])
-		print('PROXY:NEW:',requestsSession.proxies)
 		r=requestsSession.get('http://spicejet.com/',timeout=3)
-		print('PROXY: Working')
+		print('PROXY:NEW:',requestsSession.proxies,'and is Working')
 	except Exception as e:
 		print(f"PROXY:FAIL: UNABLE TO REACH PROXY",requestsSession.proxies)
 
 
 
 #----------------------------------------
-def login():
-	def refresh_cookie():
-		global lastCookie
-		c=requests.get(loginpage)
-		lastCookie=';'.join([f'{k}={v}' for k,v in c.cookies.items()])
-		headers.update({'Cookie':lastCookie})
-		# print("LOGIN:COOKIE:",lastCookie)
+def make_cookiejar(count=5):
+	cookies=[get_newcookie() for x in range(count)]
+	cookiebox=mx.jdump(cookies,'database/cookiebox.json')
+
+def get_newcookie():
+	c=requests.get('http://s1.mechhero.com/Default.aspx')
+	cookie=mx.make_cookie(c)
+	return cookie
+
+def refresh_cookie():
+	headers.update({'Cookie':mx.poprandom(cookiebox)})
+
+def multilogin():
+	for x in mx.jload('database/cookiebox.json'):
+		login(cookie=x)
+
+def login(cookie=''):
+	cookieIndexFileCounter='database/cookiebox.index'
+	mx.touch(cookieIndexFileCounter,data='0')
 	postdata={
 		"__VIEWSTATE": "41/c3qObmn18+xaWQJSXubBkBLKOnESdFi2ZRne2iOPes1OjNXXqJ0yERx9qd3AfzBGsmbylcb1hq0TRQZE+SM+2Qz+qpkQ7pekobz95dXQ=",
-		"player": "censored","password": "censored",
+		"player": "censored","password": "censored", #{"player": "yourname", "password": "yourpass"} load from credentials.json file
 		"__VIEWSTATEGENERATOR": "CA0B0334", 
 		"__EVENTTARGET": "ctl00$body$ctl00", 
 		"__EVENTARGUMENT": "login"
 	}
-	update_password=postdata.update(mx.jload('./database/credentials.json')) #{"player": "yourname", "password": "yourpass"}
-	try:
-		# r0=get_page_soup('http://s1.mechhero.com/Default.aspx') # postdata.update({'__VIEWSTATE':r0.select_one('#__VIEWSTATE').attrs.get('value')})
+	update_password=postdata.update(mx.jload('./database/credentials.json')) 
 
-		refresh_cookie()
-		r1=requestsSession.post('http://s1.mechhero.com/?stage=1',headers=headers,data=postdata)
-		stage2url=get_page_soup(r1.url).select_one('div a[href*=gamestate]')['href']
-		r3=get_page_soup(stage2url)
-		print('LOGIN:INFO: Successfully logged in')
+	# print(mp.current_process()._identity )
+	if cookie:
+		headers['Cookie']=cookie		
+	else:
+		cookieIterIndex=int(mx.fread(cookieIndexFileCounter))
+		mx.fincrement(cookieIndexFileCounter)
+		headers['Cookie']=cookiebox[cookieIterIndex%len(cookiebox)]
+		time.sleep(cookieIterIndex%len(cookiebox)/10)
+
+	try:
+		if not is_logged_in():
+			# r0=get_page_soup('http://s1.mechhero.com/Default.aspx') # postdata.update({'__VIEWSTATE':r0.select_one('#__VIEWSTATE').attrs.get('value')})
+			r1=requestsSession.post('http://s1.mechhero.com/?stage=1',headers=headers,data=postdata)
+			r2=get_page_soup(r1.url).select_one('div a[href*=gamestate]')['href']
+			r3=get_page_soup(r2)
+			print('LOGIN:INFO: new logged in with cookie',headers['Cookie'][:30])
+		else:
+			print('LOGIN:INFO: already logged in with',headers['Cookie'][:30])
 
 	except Exception as e:
-		# raise e
-		update_proxy()
 		print(repr(e))
+		# update_proxy()
 		time.sleep(5)
 		login()
 
-#----------------------------------------
-def check_login():
-	sniffsoup=get_page_soup(homepage)
 
+#----------------------------------------
+def is_logged_in():
+	sniffsoup=get_page_soup(homepage)
 	# if 'container_login' in pagestr:
 	if 'rcid' in str(sniffsoup):
 		return True
@@ -76,65 +95,38 @@ def check_login():
 
 
 def auto_login():
-	l=check_login()
-	if l==True:
+	if is_logged_in():
 		print('LOGIN:INFO: Already logged in') 
 		return
 	else:
 		print('LOGIN:ERROR: Boss We Are\'nt Logged In')
 		login()
 
-		
 #--------------------
-def save_city(debug=0):
-	global CITYVAR
-	CITYVAR=mx.get_page_soup(homepage,headers=headers).select_one('.current').attrs['href'].split('cid=')[-1]
-	if debug:
-		print('LOG: city stored')
-
-def load_city(debug=0):
-	global CITYVAR
-	mx.get_page_soup(f'http://s1.mechhero.com/City.aspx?cid={CITYVAR}',headers=headers)
-	if debug:
-		print('LOG: city restored')
-
-#--------------------
-def get_page_soup(url):
+def get_page_soup(url,debug=0,sleep=0.1):
 	response=mx.make_soup(requestsSession.get(url,headers=headers).text)
+	if debug:
+		print('LOGINMANAGER:DEBUG:',url)
+	time.sleep(sleep)
 	return response
 
-def post(url,data,debug=0):
+def post(url,data,headers=headers,debug=0,sleep=0.1):
 	if debug:
-		print('LOGIN:POST:DEBUG: posted to',url,data)
+		print('LOGIN:POST:DEBUG: posted to',url,headers,data)
 
 	try:
-
-		req=requests.post(url,headers=headers,data=data,)
+		req=requestsSession.post(url,headers=headers,data=data,)
+		time.sleep(sleep)
 		return mx.make_soup(req.text)
 
-
-	except :
+	except Exception as e:
 		print('LOGIN:POST:ERROR: Proxy/Server is not accepting our post, bloody rascals, load NEW')
-		update_proxy()
+		login()
 		return False
 
-
-
-#_________________________________________________
-# 					CODE STARTS
-#_________________________________________________
+#______________________________________________________________________________
 
 if __name__ == '__main__':
-	update_proxy()
-	# requestsSession.get('https://amir.rachum.com/')
-	# auto_login()
-	# login()
-
-
-else:
-	# update_proxy()
-	login()
-	# auto_login()
-
+	# make_cookiejar(10)
+	# multilogin()
 	...
-	

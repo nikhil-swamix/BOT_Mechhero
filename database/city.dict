@@ -1,12 +1,12 @@
 [
 	{
-		"cid": 126754,
-		"name": "nikhil7 BTC",
+		"cid": 117002,
+		"name": "Headquaters",
 		"coords": [
-			34,
-			9
+			10,
+			28
 		],
-		"sector_root": 123168,
+		"sector_root": 114952,
 		"harvestor_sid": [
 			25
 		],
@@ -15,210 +15,30 @@
 		]
 	},
 	{
-		"cid": 125735,
-		"name": "ETH 2M",
+		"cid": 115474,
+		"name": "nikhil7_1",
 		"coords": [
-			39,
-			11
+			18,
+			31
 		],
-		"sector_root": 123168,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 125745,
-		"name": "CAKE 3",
-		"coords": [
-			49,
-			11
-		],
-		"sector_root": 123184,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 121126,
-		"name": "BNB 4M",
-		"coords": [
-			38,
-			20
-		],
-		"sector_root": 119072,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 128306,
-		"name": "ADA 5M",
-		"coords": [
-			50,
-			6
-		],
-		"sector_root": 127280,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 120123,
-		"name": "XMR 6JP",
-		"coords": [
-			59,
-			22
-		],
-		"sector_root": 119096,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 121643,
-		"name": "RVN 7GM",
-		"coords": [
-			43,
-			19
-		],
-		"sector_root": 119080,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 135471,
-		"name": "SOL 8M",
-		"coords": [
-			47,
-			-8
-		],
-		"sector_root": 135464,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 137007,
-		"name": "USDT 9TP",
-		"coords": [
-			47,
-			-11
-		],
-		"sector_root": 135464,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 114983,
-		"name": "XRP 10",
-		"coords": [
-			39,
-			32
-		],
-		"sector_root": 114976,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 121664,
-		"name": "DOT 11",
-		"coords": [
-			64,
-			19
-		],
-		"sector_root": 119104,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 118576,
-		"name": "INR 12",
-		"coords": [
-			48,
-			25
-		],
-		"sector_root": 114992,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 135977,
-		"name": "FIL 13",
-		"coords": [
-			41,
-			-9
-		],
-		"sector_root": 135464,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 118580,
-		"name": "DOGE 14",
-		"coords": [
-			52,
-			25
-		],
-		"sector_root": 114992,
-		"harvestor_sid": [
-			25
-		],
-		"exchangpost_sid": [
-			35
-		]
-	},
-	{
-		"cid": 121153,
-		"name": "ERGO 15",
-		"coords": [
-			65,
-			20
-		],
-		"sector_root": 119104,
+		"sector_root": 114960,
 		"harvestor_sid": [
 			-1
+		],
+		"exchangpost_sid": [
+			-1
+		]
+	},
+	{
+		"cid": 118029,
+		"name": "outpost",
+		"coords": [
+			13,
+			26
+		],
+		"sector_root": 114952,
+		"harvestor_sid": [
+			25
 		],
 		"exchangpost_sid": [
 			-1

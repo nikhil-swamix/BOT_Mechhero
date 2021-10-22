@@ -90,10 +90,11 @@ def prettyprint_map_api_tiles(mid,n=8):
 		if bp % 8 ==0: print()
 
 def get_map_api_data(mid,n=8):
-	apiurl=f'http://s1.mechhero.com/data.map?rq=311_1_{mid}_{n}'
+	apiurl=f'http://s1.mechhero.com/data.map?rq=83_1_{mid}_{n}'
 	for x in range(512,(512*n-1)+1,512):
 		apiurl+=f'_{mid+x}_{n}'
 	page=LoginManager.get_page_soup(apiurl).text
+	# print("trace",page)
 	cleararray=[]
 	playerFoundSignal=0
 	for x in page.split('%'):
@@ -127,13 +128,9 @@ def get_npc_tiles(mid,n=8):
 	return ntiles
 
 if __name__ == '__main__':
-	import Defaults
+	print (get_root(117002))
+	LoginManager.login()
 	# CitySector(Defaults.CITY1['cid'])
-	mytile=Tile(127784)
-	for x in vars(mytile).items():
-		print(x)
 	# mid=123168
-	# ntiles=get_npc_tiles(mid)
-	# print(ntiles)
-
-	# prettyprint_map_api_tiles(Defaults.CITY1['sector_root'])
+	ntiles=get_npc_tiles(114952)
+	print(ntiles)

@@ -1,3 +1,6 @@
+from __imports__ import *
+import NPCExplorer,Harvester,ExchangePost,CityBuilder
+import LoginManager
 
 def sequential_farming_plan():
 	"""
@@ -6,25 +9,21 @@ def sequential_farming_plan():
 			you may add CITIES and their associated actions from different 
 			modules , in a sequential manner. it runs forever. errors are not 
 			raised by default to prevent crashing of code in runtime.
-		args:none 
-			not required everything is defined inside, raise errors to check
-		vars:cyclesleep
-			its a delay backoff time between successive game
-			actions to prevent over loading servers and being banned. if we
-			get banned it will auto increment to play more slowly, 
-			manual intervention not required.
+		args:
+			none not required
+		vars:
+			cyclesleep:
+				progressive delay for every loop cycle, increase if hitting rate limit.
 	"""
 	cyclesleep=10
-	while True: #EXPLORE HARVEST IN SAME CYCLE """
+	while True:
 		errsignal=0
 		try:
-			pass
+			NPCExplorer.plan()
+			Harvester.plan()
+			CityBuilder.plan()
 		except Exception as e:
-			raise e
-		NPCExplorer.plan()
-		Harvester.plan()
-		CityBuilder.plan()
-
+			pass
 
 		if errsignal:
 			print("MAIN:ERROR: ALERT BOSS! we encounter a serious error trying to re-login")
@@ -36,25 +35,32 @@ def sequential_farming_plan():
 
 
 #_________________________________________________
-def parallel_multitasking_plan():
-	plans=[NPCExplorer.plan, Harvester.plan,CityBuilder.plan]
+def func(f): 
+	f()
+
+def parallel_multitasking_plan(plans):
+	global SUPERPOOL
 	c=0
+	POOL=Pool(4,initializer=threadinit,initargs=[q])
 	while True:
 		try:
-			# POOL.map_async(plans[c % len(plans)])
-			promise=POOL.map_async(func,plans)
-			promise.wait()
+			Logger.breakpoint('TRACE: Parallel Workers')
+			r=POOL.map_async(func,plans)
+			r.get()
 			c+=1
-		except Exception as e:
-			print('MAIN:ERROR: Retrying our plans !!!',e)
-			return
+			time.sleep(10)
 
-def func(f): f()
+
+		except Exception as e:
+			Logger.error('MAIN:ERROR: repr(e) Retrying all plans !!!',)
+			time.sleep(10)
+
 
 #_________________________________________________
 def parallel_cmd_execution():
-	autoExploreCommand=os.system('start cmd /K python ./NPCExplorer.py ')
-	autoHarvestCommand=os.system('start cmd /K python ./Harvester.py ')
+	autoExploreCommand=os.system('start cmd /K python ./NPCExplorer.py')
+	autoHarvestCommand=os.system('start cmd /K python ./Harvester.py')
+
 #_________________________________________________
 #                 (_)                     | |     
 #  _ __ ___   __ _ _ _ __     ___ ___   __| | ___ 
@@ -62,21 +68,32 @@ def parallel_cmd_execution():
 # | | | | | | (_| | | | | | | (_| (_) | (_| |  __/
 # |_| |_| |_|\__,_|_|_| |_|  \___\___/ \__,_|\___|
 #-------------------------------------------------
-#NOTES
-# RAILFACTORY: ETH2 ,ADA5
-# NUCLEAR: BNB4
-# CERAMIC PLATING: CAKE3,BNB4,RVN7,XMR6
-# FORCEFIELD: ADA5,BTC1,SOL8
-# X-2M,MEDIUM TRANSPORT PLATFORM: CAKE3 ,USDT9
-# JETPACK: XMR 6
+
+def threadinit(q):
+	if not q.empty():
+		s=q.get(1)
+		time.sleep(s)
+		LoginManager.login()
+	else:
+		return
 
 if __name__ == '__main__':
-	from __imports__ import *
-	from multiprocessing import Process,Pool
-	POOL=Pool(3)
-	parallel_multitasking_plan()
+	from multiprocessing import Process,Pool,Manager,Queue,Lock
+	# from concurrent.futures import ProcessPoolExecutor,wait
 
+	plans=[
+		NPCExplorer.plan, 
+		Harvester.plan, 
+		# CityBuilder.plan,
+		# ExchangePost.plan
+		]
 
-	"""plans"""
-	# sequential_farming_plan()
-	# parallel_cmd_execution()
+	mylock=Lock()
+	q=Queue(100)
+	[q.put(x) for x in range(4)]
+
+	parallel_multitasking_plan(plans)
+	
+
+	# POOL.apply(ExchangePost.round_robin_transfer)
+
