@@ -15,28 +15,43 @@
 		]
 	},
 	{
+		"cid": 118029,
+		"name": "C02",
+		"coords": [
+			13,
+			26
+		],
+		"sector_root": 114952,
+		"harvestor_sid": [
+			25
+		],
+		"exchangpost_sid": [
+			35
+		]
+	},
+	{
 		"cid": 115474,
-		"name": "nikhil7_1",
+		"name": "C03",
 		"coords": [
 			18,
 			31
 		],
 		"sector_root": 114960,
 		"harvestor_sid": [
-			-1
+			25
 		],
 		"exchangpost_sid": [
-			-1
+			35
 		]
 	},
 	{
-		"cid": 118029,
-		"name": "outpost",
+		"cid": 118524,
+		"name": "C04",
 		"coords": [
-			13,
-			26
+			-4,
+			25
 		],
-		"sector_root": 114952,
+		"sector_root": 114936,
 		"harvestor_sid": [
 			25
 		],

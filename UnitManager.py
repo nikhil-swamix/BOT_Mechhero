@@ -120,15 +120,10 @@ def upgrade_all_units(CITY):
 		LoginManager.login()
 
 if __name__ == '__main__':
-	upgrade_unit(417119,CITY14)
-	# upgrade_all_units(CITY14)
-	# [[print(c['cid']),upgrade_all_units(c)] for c in CITIES]
-
-	'''GET ALL UNITS WITH DATAOBJ'''
-# udatalist=[get_unit_data(x) for x in get_units_list(Defaults.CITY2)]
-'''GET ALL DATA'''
-# udata=get_unit_datalist(CITY5)
-# print(udata)
-
-'''AUTO MAINTAIN ALL UNITS'''
-# rearm_repair_all_units(CITY7)
+	if 'test':
+		# upgrade_unit(417119,CITY14)
+		upgrade_all_units(CITY1)
+		# rearm_repair_all_units(CITY1)
+		# get_units_list(CITY1)
+		# get_unit_datalist(CITY5)
+		...

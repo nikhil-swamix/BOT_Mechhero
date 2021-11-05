@@ -77,7 +77,7 @@ def topup_new_cities_from_source(source_city,last_n=3,xbaseline=[0,0,10**6]):
 		transfer_xsurplus(source_city,x,surplusdiv=1,xbaseline=xbaseline)
 		time.sleep(2)
 
-def round_robin_transfer(PRODUCERS=[],CONSUMERS=[],xbaseline=[500000,500000,1000000]):
+def round_robin_transfer(PRODUCERS=[],CONSUMERS=[],xbaseline=[200000,200000,100000]):
 	# print(f"EXCHANGER:INFO: Starting round Robin Transfer, Sources:{[x['name'] for x in PRODUCERS]}")
 	if not CONSUMERS:
 		CONSUMERS=[c for c in CITIES if c not in PRODUCERS]
@@ -91,7 +91,7 @@ def round_robin_transfer(PRODUCERS=[],CONSUMERS=[],xbaseline=[500000,500000,1000
 
 def plan():
 	PRODUCERS=[CITY1]
-	CONSUMERS=[CITY2]
+	CONSUMERS=[CITY2,CITY3]
 	while True:
 		try:
 			round_robin_transfer(PRODUCERS=PRODUCERS,CONSUMERS=CONSUMERS)

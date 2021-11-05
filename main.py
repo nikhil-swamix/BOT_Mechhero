@@ -44,7 +44,7 @@ def parallel_multitasking_plan(plans):
 	POOL=Pool(4,initializer=threadinit,initargs=[q])
 	while True:
 		try:
-			Logger.breakpoint('TRACE: Parallel Workers')
+			Logger.breakpoint('TRACE: Starting workers')
 			r=POOL.map_async(func,plans)
 			r.get()
 			c+=1
@@ -84,8 +84,8 @@ if __name__ == '__main__':
 	plans=[
 		NPCExplorer.plan, 
 		Harvester.plan, 
-		# CityBuilder.plan,
-		# ExchangePost.plan
+		CityBuilder.plan,
+		ExchangePost.plan
 		]
 
 	mylock=Lock()

@@ -3,7 +3,6 @@
 	it has info getting functions which will fetch 
 	the latest data and status of a city 
 '''
-
 from mxproxy import mx
 import LoginManager
 from MapScanner import *
@@ -14,22 +13,24 @@ dbfile='database/city.dict'
 def get_all_cities_soup():
 	slist=LoginManager.get_page_soup('http://s1.mechhero.com/City.aspx').select('#clist a')
 	cids=[int(re.search(r'\d+',x['href']).group()) for x in slist]
-	return [LoginManager.get_page_soup(f"http://s1.mechhero.com/City.aspx?cid={cid}",sleep=0.5) for cid in cids]
+	return [LoginManager.get_page_soup(f"http://s1.mechhero.com/City.aspx?cid={cid}",sleep=1) for cid in cids]
 
-def save_cities_data():
-	mx.jdump([city_dict(x) for x in get_all_cities_soup()],dbfile) 
+def refresh_cities_data():
+	a=[city_dictifier(x) for x in get_all_cities_soup()]
+	mx.jdump(a,dbfile)
+	return a 
 
 def load_cities_data(freshcopy=0):
-	if mx.fdelta('database/city.dict')>3600*6 or freshcopy:
+	if mx.fdelta('database/city.dict')>3600*2 or freshcopy:
 		print('DEFAULTS:LOG: Fetching fresh copy of all city data')
-		save_cities_data()
+		refresh_cities_data()
 	return mx.jload(dbfile)
 
-def city_dict(soup):
+def city_dictifier(soup):
 	'''take soup make few requests and return crucial city data'''
 	cid=int(re.search(r'\d+',soup.select_one('.current')['href']).group())
 	blist=get_buildings(soup)
-	return {
+	d={
 		'cid':cid,
 		'name':soup.select_one('#title').text,
 		'coords':get_tile_coords(cid),
@@ -37,6 +38,8 @@ def city_dict(soup):
 		'harvestor_sid':get_sid(blist,'Recycling Workshop'),
 		'exchangpost_sid':get_sid(blist,'Exchange Post')
 		}
+	# print(d)
+	return d
 
 
 
@@ -116,9 +119,11 @@ def get_military_enroutes(CITY):
 
 if __name__ == '__main__':
 	LoginManager.login()
-	# print(city_dict(LoginManager.get_page_soup('http://s1.mechhero.com/City.aspx?cid=142646')))
+	# print(city_dictifier(LoginManager.get_page_soup('http://s1.mechhero.com/City.aspx?cid=142646')))
 
-	# x=get_all_cities_soup()
-	# print(x)
-	save_cities_data()
-	...
+	if "test":
+		load_cities_data(freshcopy=1)
+		# get_all_cities_soup(); 
+
+	# mx.fwrite('./apple.data','anshul')
+	# mx.jdump(refresh_cities_data(),'apple.data')

@@ -1,21 +1,26 @@
 from mxproxy import mx
 import requests
-import re; import os ;import time ;import pickle
+import re
+import os 
+import time 
+import pickle
 import random
 # import multiprocessing as mp
 
+#----------------------------------------
 DEBUG=0
-#--------------------
 headers={'Cookie':'', 'User-Agent':"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0"}
 homepage='http://s1.mechhero.com/City.aspx'
-
 requestsSession=requests.session()
-cookiebox=mx.jload('database/cookiebox.json')
-#--------------------
+cookieboxPath='database/cookiebox.json'
+cookiebox=mx.jload(cookieboxPath)
+cookieIndexFileCounter='database/cookiebox.index'
 proxyDBmod=0
+#----------------------------------------
 def update_proxy():
 	global proxyDBmod
-	# slot=proxyDBmod%3; proxyDBmod+=1
+	# slot=proxyDBmod%3; 
+	# proxyDBmod+=1
 	# proxlist=mx.jload('database/socks5proxies.set.best')[:]
 	# proxlist=mx.jload('database/httpproxies.set.best')[:]
 	try:
@@ -26,27 +31,27 @@ def update_proxy():
 	except Exception as e:
 		print(f"PROXY:FAIL: UNABLE TO REACH PROXY",requestsSession.proxies)
 
-
-
 #----------------------------------------
-def make_cookiejar(count=5):
-	cookies=[get_newcookie() for x in range(count)]
-	cookiebox=mx.jdump(cookies,'database/cookiebox.json')
-
-def get_newcookie():
+def get_cookie():
 	c=requests.get('http://s1.mechhero.com/Default.aspx')
 	cookie=mx.make_cookie(c)
 	return cookie
 
-def refresh_cookie():
-	headers.update({'Cookie':mx.poprandom(cookiebox)})
+def get_cookies(count=5):
+	cookies=[get_cookie() for x in range(count)]
+	cookiebox=mx.jdump(cookies,cookieboxPath)
 
-def multilogin():
-	for x in mx.jload('database/cookiebox.json'):
+def iter_cookiebox():
+	cookieIterIndex=int(mx.fread(cookieIndexFileCounter))
+	mx.fincrement(cookieIndexFileCounter)
+	# print('cookie iter index:',cookieIterIndex)
+	return cookiebox[cookieIterIndex%len(cookiebox)]
+
+def login_cookiebox():
+	for x in mx.jload(cookieboxPath):
 		login(cookie=x)
 
 def login(cookie=''):
-	cookieIndexFileCounter='database/cookiebox.index'
 	mx.touch(cookieIndexFileCounter,data='0')
 	postdata={
 		"__VIEWSTATE": "41/c3qObmn18+xaWQJSXubBkBLKOnESdFi2ZRne2iOPes1OjNXXqJ0yERx9qd3AfzBGsmbylcb1hq0TRQZE+SM+2Qz+qpkQ7pekobz95dXQ=",
@@ -55,17 +60,13 @@ def login(cookie=''):
 		"__EVENTTARGET": "ctl00$body$ctl00", 
 		"__EVENTARGUMENT": "login"
 	}
-	update_password=postdata.update(mx.jload('./database/credentials.json')) 
-
-	# print(mp.current_process()._identity )
+	postdata.update(mx.jload('./database/credentials.json')) #load and update_password
+	# print(mp.current_process()._identity)
 	if cookie:
-		headers['Cookie']=cookie		
+		headers['Cookie']=cookie
 	else:
-		cookieIterIndex=int(mx.fread(cookieIndexFileCounter))
-		mx.fincrement(cookieIndexFileCounter)
-		headers['Cookie']=cookiebox[cookieIterIndex%len(cookiebox)]
-		time.sleep(cookieIterIndex%len(cookiebox)/10)
-
+		headers['Cookie']=iter_cookiebox()
+		time.sleep(random.random())
 	try:
 		if not is_logged_in():
 			# r0=get_page_soup('http://s1.mechhero.com/Default.aspx') # postdata.update({'__VIEWSTATE':r0.select_one('#__VIEWSTATE').attrs.get('value')})
@@ -104,6 +105,7 @@ def auto_login():
 
 #--------------------
 def get_page_soup(url,debug=0,sleep=0.1):
+	# headers['Cookie']=iter_cookiebox()
 	response=mx.make_soup(requestsSession.get(url,headers=headers).text)
 	if debug:
 		print('LOGINMANAGER:DEBUG:',url)
@@ -127,6 +129,7 @@ def post(url,data,headers=headers,debug=0,sleep=0.1):
 #______________________________________________________________________________
 
 if __name__ == '__main__':
-	# make_cookiejar(10)
-	# multilogin()
+	# get_cookies(5)
+	login_cookiebox()
+	# [print(iter_cookiebox()) for x in range(15) ]
 	...

@@ -2,6 +2,7 @@
 	City builder module automates the development of buildings in the city
 
 """
+from __imports__ import *
 from mxproxy import mx
 import re
 import time
@@ -128,7 +129,7 @@ class Buildings:
 
 #_________________________________________________
 def develop_new_cities(lastn=4):
-	for CITY in CITYLIST:
+	for CITY in CITIES[-lastn:-1:-1]:
 		autobuild(CITY,storages,maxlvl=18)#build these to lvl-1 first
 		time.sleep(2)
 
@@ -137,12 +138,15 @@ def plan():
 	print(__name__,'PLAN IS STARTING')
 	# autobuild(CITY7,[3,0],maxlvl=18)#build these to lvl-1 first
 	while True:
-		newcities=list(reversed(CITIES[-4:]))
-		new_city_base_plan=[3,0]+Buildings.core
-		for c in newcities:
-			autobuild(c,  new_city_base_plan,maxlvl=18)#build these to lvl-1 first
-			autobuild(c,  Buildings.storages,maxlvl=19)#build these to lvl-1 first
-		Logger.info(f"CITY BUILDER SLEEPING")
+		try:
+			newcities=list(CITIES[-3:][::-1])
+			new_city_base_plan=[3,0]+Buildings.core
+			for c in newcities:
+				autobuild(c,  new_city_base_plan,maxlvl=18)#build these to lvl-1 first
+				autobuild(c,  Buildings.storages,maxlvl=19)#build these to lvl-1 first
+			Logger.info(f"CITY BUILDER SLEEPING")
+		except Exception as e:
+			pass
 		time.sleep(120)
 
 
@@ -157,7 +161,8 @@ def plan():
 if __name__ == '__main__':
 	# print(__file__)
 	plan()
+	# print(CITIES[-2:][::-1])
 	# while True:
 	# 	autobuild(CITY6,[3,3,3],maxlvl=10)
 	# 	time.sleep(60)
-
+	...
