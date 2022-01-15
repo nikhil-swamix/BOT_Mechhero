@@ -85,7 +85,7 @@ if __name__ == '__main__':
 		NPCExplorer.plan, 
 		Harvester.plan, 
 		CityBuilder.plan,
-		ExchangePost.plan
+		# ExchangePost.plan
 		]
 
 	mylock=Lock()

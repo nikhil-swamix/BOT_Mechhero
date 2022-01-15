@@ -121,9 +121,9 @@ def upgrade_all_units(CITY):
 
 if __name__ == '__main__':
 	if 'test':
+		rearm_repair_all_units(CITY1)
 		# upgrade_unit(417119,CITY14)
-		upgrade_all_units(CITY1)
-		# rearm_repair_all_units(CITY1)
+		# upgrade_all_units(CITY1)
 		# get_units_list(CITY1)
 		# get_unit_datalist(CITY5)
 		...
